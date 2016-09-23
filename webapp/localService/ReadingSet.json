@@ -1,0 +1,28 @@
+[{
+	"DeviceID": "eg.wz.th.01",
+	"GroupID": "state",
+	"ReadingID": "temp",
+	"ReadingValue": "22"
+}, {
+	"GroupID": "state",
+	"DeviceID": "eg.ez.th.01",
+	"ReadingID": "temp",
+	"ReadingValue": "19"
+}, {
+	"GroupID": "state",
+	"DeviceID": "eg.hw.sz.haushalt",
+	"ReadingID": "Momentanleistung",
+	"ReadingValue": "1245"
+}, {
+	"DeviceID": "eg.wz.rl.01",
+	"ReadingID": "pct"
+}, {
+	"DeviceID": "eg.ez.rl.01",
+	"ReadingID": "pct"
+}, {
+	"DeviceID": "og.es.rl.01",
+	"ReadingID": "pct"
+}, {
+	"DeviceID": "og.ks.rl.01",
+	"ReadingID": "pct"
+}]

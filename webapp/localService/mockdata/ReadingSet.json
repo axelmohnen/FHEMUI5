@@ -1,0 +1,145 @@
+[{
+	"GroupID": "state",
+	"DeviceID": "og.bz.th.01",
+	"ReadingID": "temperature",
+	"ReadingValue": "0",
+	"TileHeader": "Badezimmer",
+	"TileSubHeader": "",
+	"TileHeaderImage": "",
+	"TileUnit": "",
+	"TileContentType": "numeric",
+	"NumericContentScale": "°C",
+	"NumericContentIndicator": "",
+	"NumericContentValueColor": "",
+	"NumericContentIcon": "sap-icon://temperature",
+	"TileFooter": "Temperatur",
+	"NumericContentSetIndicator": true,
+	"ReadingValueOld": "18"
+}, {
+	"GroupID": "state",
+	"DeviceID": "eg.hw.sz.haushalt",
+	"ReadingID": "Zählerstand-Bezug-Total",
+	"ReadingValue": "",
+	"TileHeader": "Stromzähler ",
+	"TileSubHeader": "Haushalt",
+	"NumericContentScale": "",
+	"TileContentType": "numeric",
+	"NumericContentIndicator": "",
+	"NumericContentValueColor": "",
+	"NumericContentIcon": "sap-icon://line-charts",
+	"TileFooter": "kwh"
+}, {
+	"DeviceID": "eg.wz.rl.01",
+	"ReadingID": "pct",
+	"ReadingValue": "0"
+}, {
+	"DeviceID": "eg.ez.rl.01",
+	"ReadingID": "pct",
+	"ReadingValue": "0"
+}, {
+	"DeviceID": "og.es.rl.01",
+	"ReadingID": "pct",
+	"ReadingValue": "0"
+}, {
+	"DeviceID": "og.ks.rl.01",
+	"ReadingID": "pct",
+	"ReadingValue": "0"
+}, {
+	"DeviceID": "eg.te.pm.01",
+	"ReadingID": "pct",
+	"ReadingValue": "0"
+}, {
+	"DeviceID": "eg.te.pm.02",
+	"ReadingID": "pct",
+	"ReadingValue": "0"
+}, {
+	"DeviceID": "og.bz.th.01",
+	"ReadingID": "humidity",
+	"ReadingValue": "0",
+	"TileSubHeader": "",
+	"TileHeader": "Badezimmer",
+	"TileHeaderImage": "",
+	"TileUnit": "",
+	"TileContentType": "numeric",
+	"NumericContentScale": "%",
+	"NumericContentIcon": "",
+	"TileFooter": "Luftfeuchtigkeit",
+	"NumericContentIndicator": "",
+	"NumericContentValueColor": ""
+}, {
+	"DeviceID": "aa.gh.rt.01",
+	"ReadingID": "liters",
+	"ReadingValue": "0",
+	"TileHeader": "Wasserzisterne",
+	"TileFooter": "Füllstand",
+	"TileContentType": "RadialMicro",
+	"TileUnit": "",
+	"HarveyBallTotal": "",
+	"HarveyBallTotalLabel": "",
+	"HarveyBallTotalScale": "",
+	"HarveyBallFractionLabel": "",
+	"HarveyBallFractionScale": "",
+	"HarveyBallColor": "",
+	"RadialMicroPercentage": "",
+	"RadialMicroColor": "Neutral",
+	"TileSubHeader": "max 7000 Liter",
+	"TileHeaderImage": ""
+}, {
+	"DeviceID": "aa.gh.we.01",
+	"ReadingID": "temperature",
+	"ReadingValue": "0",
+	"TileHeader": "Wetterstation",
+	"TileContentType": "numeric",
+	"NumericContentScale": "°C",
+	"NumericContentIndicator": "",
+	"NumericContentValueColor": "",
+	"NumericContentIcon": "sap-icon://temperature",
+	"TileHeaderImage": "sap-icon://weather-proofing",
+	"TileFooter": "Temperatur"
+}, {
+	"DeviceID": "aa.gh.we.01",
+	"ReadingID": "windSpeed",
+	"ReadingValue": "0",
+	"TileHeader": "Wetterstation",
+	"TileContentType": "numeric",
+	"NumericContentScale": "m/s",
+	"NumericContentIndicator": "",
+	"NumericContentValueColor": "",
+	"TileHeaderImage": "sap-icon://weather-proofing",
+	"TileFooter": "Wind",
+	"NumericContentIcon": "sap-icon://flag"
+}, {
+	"DeviceID": "aa.gh.we.01",
+	"ReadingID": "humidity",
+	"ReadingValue": "0",
+	"TileHeader": "Wetterstation",
+	"TileHeaderImage": "sap-icon://weather-proofing",
+	"TileFooter": "Luftfeuchtigkeit",
+	"TileContentType": "numeric",
+	"NumericContentScale": "%",
+	"NumericContentIndicator": "",
+	"NumericContentValueColor": ""
+}, {
+	"DeviceID": "aa.gh.we.01",
+	"ReadingID": "rain",
+	"ReadingValue": "0",
+	"TileHeader": "Wetterstation",
+	"TileHeaderImage": "sap-icon://weather-proofing",
+	"TileFooter": "Niederschlag",
+	"TileContentType": "numeric",
+	"NumericContentScale": "mm",
+	"NumericContentIcon": "sap-icon://umbrella"
+}, {
+	"DeviceID": "eg.hw.sz.wp",
+	"ReadingID": "Zählerstand-Bezug-Total",
+	"ReadingValue": "0",
+	"TileHeader": "Stromzähler ",
+	"TileSubHeader": "Wärmepumpe",
+	"TileFooter": "kwh",
+	"TileContentType": "numeric",
+	"NumericContentIcon": "sap-icon://line-charts"
+}, {
+	"DeviceID": "og.bz.sd.heizung.dum1",
+	"ReadingID": "state",
+	"ReadingValue": "0"
+}]

@@ -1,0 +1,69 @@
+[{
+	"GroupID": "shutters",
+	"DeviceID": "eg.wz.rl.01",
+	"DeviceDescription": "Wohnzimmer gross",
+	"DeviceType": "shutter",
+	"DeviceIDTech": "",
+	"DeviceSeq": "1"
+}, {
+	"GroupID": "shutters",
+	"DeviceID": "eg.ez.rl.01",
+	"DeviceDescription": "Esszimmer gross",
+	"DeviceSeq": "2",
+	"DeviceType": "shutter"
+}, {
+	"GroupID": "shutters",
+	"DeviceID": "og.ks.rl.01",
+	"DeviceDescription": "Schlafzimmer Konrad",
+	"DeviceSeq": "4",
+	"DeviceType": "shutter"
+}, {
+	"GroupID": "shutters",
+	"DeviceID": "og.es.rl.01",
+	"DeviceDescription": "Schlafzimmer Eltern",
+	"DeviceSeq": "3",
+	"DeviceType": "shutter"
+}, {
+	"GroupID": "sunblinds",
+	"DeviceID": "eg.te.pm.01",
+	"DeviceDescription": "Wohnzimmer",
+	"DeviceSeq": "2",
+	"DeviceType": "sunblind"
+}, {
+	"GroupID": "sunblinds",
+	"DeviceID": "eg.te.pm.02",
+	"DeviceDescription": "Esszimmer",
+	"DeviceSeq": "1",
+	"DeviceType": "sunblind"
+}, {
+	"GroupID": "state",
+	"DeviceID": "og.bz.th.01",
+	"DeviceDescription": "T/H Badezimmer",
+	"DeviceSeq": "1"
+}, {
+	"GroupID": "state",
+	"DeviceID": "eg.hw.sz.haushalt",
+	"DeviceDescription": "Stromzähler Haushalt",
+	"DeviceSeq": "3"
+}, {
+	"GroupID": "switches",
+	"DeviceID": "og.bz.sd.heizung.dum1",
+	"DeviceDescription": "Badheizkörper",
+	"DeviceType": "switch",
+	"DeviceSeq": "1"
+}, {
+	"GroupID": "state",
+	"DeviceID": "aa.gh.rt.01",
+	"DeviceDescription": "Wasserzisterne",
+	"DeviceSeq": "5"
+}, {
+	"GroupID": "state",
+	"DeviceID": "aa.gh.we.01",
+	"DeviceDescription": "Wetterstation",
+	"DeviceSeq": "6"
+}, {
+	"GroupID": "state",
+	"DeviceID": "eg.hw.sz.wp",
+	"DeviceDescription": "Stromzähler Wärmepumpe",
+	"DeviceSeq": "4"
+}]
