@@ -12,7 +12,7 @@
 		},
 		"dataSources": {
 			"mainService": {
-				"uri": "https://192.168.0.22:8086/fhem",
+				"uri": "http://192.168.999.999:8083/fhem",
 				"type": "OData",
 				"settings": {
 					"odataVersion": "2.0",

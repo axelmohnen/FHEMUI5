@@ -47,7 +47,7 @@
     }
   ],
   "mockpreview": {
-    "mockUri": "https://192.168.0.22:8086/fhem",
+    "mockUri": "https://192.168.x.y:8083/fhem",
     "metadataFilePath": "localService/metadata.xml",
     "loadJSONFiles": true,
     "loadCustomRequests": false,

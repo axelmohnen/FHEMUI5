@@ -7,8 +7,9 @@ sap.ui.define([
 	"sap/ui/core/routing/History",
 	"sap/ui/core/IntervalTrigger",
 	"fhemui5/localService/mockserver",
-	"fhemui5/util/GlobalUtils"
-], function(BaseController, JSONModel, formatter, MessageToast, History, IntervalTrigger, mockserver, GlobalUtils) {
+	"fhemui5/util/GlobalUtils",
+	"sap/m/MessageBox",
+], function(BaseController, JSONModel, formatter, MessageToast, History, IntervalTrigger, mockserver, GlobalUtils, MessageBox) {
 	"use strict";
 	return BaseController.extend("fhemui5.controller.Detail", {
 		formatter: formatter,
@@ -260,7 +261,7 @@ sap.ui.define([
 				if (!oDeviceSet) {
 					continue;
 				}
-				
+
 				//Sort DeviceSet by sequence number 
 				oDeviceSet.sort(GlobalUtils.compareDeviceSeq);
 
@@ -558,10 +559,16 @@ sap.ui.define([
 				return;
 			}
 
-			if (oDeviceSet instanceof Array) {
-				oDeviceSet.forEach(function(oValue, i) {
-					othis.refreshReadings(oValue.DeviceID, oValue.ReadingSet.results);
-				});
+			// Check Service URL
+			if (GlobalUtils.checkServiceURL(this)) {
+				MessageBox.error( "Service URL is not valid" );
+			} else {
+			// Get data from Fhem via JSON List
+				if (oDeviceSet instanceof Array) {
+					oDeviceSet.forEach(function(oValue, i) {
+						othis.refreshReadings(oValue.DeviceID, oValue.ReadingSet.results);
+					});
+				}
 			}
 
 			// Build State Tile Model	
@@ -597,14 +604,7 @@ sap.ui.define([
 				oReadingSet.forEach(function(oValue, i) {
 					// Get ReadingsValue from FHEM Model
 					var sReadingValue = oModelFhemData.getProperty("/Results/0/Readings/" + oValue.ReadingID + "/Value");
-
-					// Update reading values
-					// if (jQuery.isNumeric(sReadingValue)) {
-					// 	oValue.ReadingValue = parseFloat(sReadingValue);
-					// } else {
 					oValue.ReadingValue = sReadingValue;
-					// }
-
 					if (!oValue.ReadingValue) {
 						oValue.ReadingValue = "0";
 					}
@@ -621,6 +621,7 @@ sap.ui.define([
 			var splaceholder = "[DeviceID]";
 			var fhemcmd = oModel.sServiceUrl + sprefix;
 			fhemcmd = fhemcmd.replace(splaceholder, sDeviceID);
+
 			var oModelFhemData = new sap.ui.model.json.JSONModel();
 			oModelFhemData.loadData(fhemcmd, undefined, false);
 			return oModelFhemData;

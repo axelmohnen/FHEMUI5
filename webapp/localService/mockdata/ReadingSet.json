@@ -1,8 +1,8 @@
 [{
 	"GroupID": "state",
-	"DeviceID": "og.bz.th.01",
+	"DeviceID": "th_bad1",
 	"ReadingID": "temperature",
-	"ReadingValue": "0",
+	"ReadingValue": "22",
 	"TileHeader": "Badezimmer",
 	"TileSubHeader": "",
 	"TileHeaderImage": "",
@@ -17,9 +17,9 @@
 	"ReadingValueOld": "18"
 }, {
 	"GroupID": "state",
-	"DeviceID": "eg.hw.sz.haushalt",
+	"DeviceID": "power_haushalt",
 	"ReadingID": "Zählerstand-Bezug-Total",
-	"ReadingValue": "",
+	"ReadingValue": "1234",
 	"TileHeader": "Stromzähler ",
 	"TileSubHeader": "Haushalt",
 	"NumericContentScale": "",
@@ -29,33 +29,33 @@
 	"NumericContentIcon": "sap-icon://line-charts",
 	"TileFooter": "kwh"
 }, {
-	"DeviceID": "eg.wz.rl.01",
+	"DeviceID": "shutter1",
 	"ReadingID": "pct",
-	"ReadingValue": "0"
+	"ReadingValue": "100"
 }, {
-	"DeviceID": "eg.ez.rl.01",
+	"DeviceID": "shutter2",
 	"ReadingID": "pct",
-	"ReadingValue": "0"
+	"ReadingValue": "50"
 }, {
-	"DeviceID": "og.es.rl.01",
+	"DeviceID": "shutter3",
 	"ReadingID": "pct",
-	"ReadingValue": "0"
+	"ReadingValue": "20"
 }, {
-	"DeviceID": "og.ks.rl.01",
+	"DeviceID": "shutter3",
 	"ReadingID": "pct",
-	"ReadingValue": "0"
+	"ReadingValue": "70"
 }, {
-	"DeviceID": "eg.te.pm.01",
+	"DeviceID": "sunblind1",
 	"ReadingID": "pct",
-	"ReadingValue": "0"
+	"ReadingValue": "50"
 }, {
-	"DeviceID": "eg.te.pm.02",
+	"DeviceID": "sunblind2",
 	"ReadingID": "pct",
-	"ReadingValue": "0"
+	"ReadingValue": "100"
 }, {
-	"DeviceID": "og.bz.th.01",
+	"DeviceID": "th_bad1",
 	"ReadingID": "humidity",
-	"ReadingValue": "0",
+	"ReadingValue": "55",
 	"TileSubHeader": "",
 	"TileHeader": "Badezimmer",
 	"TileHeaderImage": "",
@@ -67,9 +67,9 @@
 	"NumericContentIndicator": "",
 	"NumericContentValueColor": ""
 }, {
-	"DeviceID": "aa.gh.rt.01",
+	"DeviceID": "watertank1",
 	"ReadingID": "liters",
-	"ReadingValue": "0",
+	"ReadingValue": "76",
 	"TileHeader": "Wasserzisterne",
 	"TileFooter": "Füllstand",
 	"TileContentType": "RadialMicro",
@@ -85,9 +85,9 @@
 	"TileSubHeader": "max 7000 Liter",
 	"TileHeaderImage": ""
 }, {
-	"DeviceID": "aa.gh.we.01",
+	"DeviceID": "weather1",
 	"ReadingID": "temperature",
-	"ReadingValue": "0",
+	"ReadingValue": "25",
 	"TileHeader": "Wetterstation",
 	"TileContentType": "numeric",
 	"NumericContentScale": "°C",
@@ -97,9 +97,9 @@
 	"TileHeaderImage": "sap-icon://weather-proofing",
 	"TileFooter": "Temperatur"
 }, {
-	"DeviceID": "aa.gh.we.01",
+	"DeviceID": "weather1",
 	"ReadingID": "windSpeed",
-	"ReadingValue": "0",
+	"ReadingValue": "2",
 	"TileHeader": "Wetterstation",
 	"TileContentType": "numeric",
 	"NumericContentScale": "m/s",
@@ -109,9 +109,9 @@
 	"TileFooter": "Wind",
 	"NumericContentIcon": "sap-icon://flag"
 }, {
-	"DeviceID": "aa.gh.we.01",
+	"DeviceID": "weather1",
 	"ReadingID": "humidity",
-	"ReadingValue": "0",
+	"ReadingValue": "65",
 	"TileHeader": "Wetterstation",
 	"TileHeaderImage": "sap-icon://weather-proofing",
 	"TileFooter": "Luftfeuchtigkeit",
@@ -120,7 +120,7 @@
 	"NumericContentIndicator": "",
 	"NumericContentValueColor": ""
 }, {
-	"DeviceID": "aa.gh.we.01",
+	"DeviceID": "weather1",
 	"ReadingID": "rain",
 	"ReadingValue": "0",
 	"TileHeader": "Wetterstation",
@@ -130,7 +130,7 @@
 	"NumericContentScale": "mm",
 	"NumericContentIcon": "sap-icon://umbrella"
 }, {
-	"DeviceID": "eg.hw.sz.wp",
+	"DeviceID": "power_wp",
 	"ReadingID": "Zählerstand-Bezug-Total",
 	"ReadingValue": "0",
 	"TileHeader": "Stromzähler ",
@@ -139,7 +139,7 @@
 	"TileContentType": "numeric",
 	"NumericContentIcon": "sap-icon://line-charts"
 }, {
-	"DeviceID": "og.bz.sd.heizung.dum1",
+	"DeviceID": "heater_bad1",
 	"ReadingID": "state",
-	"ReadingValue": "0"
+	"ReadingValue": "on"
 }]

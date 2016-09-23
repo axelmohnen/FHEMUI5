@@ -8,6 +8,11 @@ sap.ui.define([], function() {
 			if (a.DeviceSeq > b.DeviceSeq)
 				return 1;
 			return 0;
+		},
+
+		checkServiceURL: function(sThis) {
+			var oModel = sThis.getModel();
+			return oModel.sServiceUrl.indexOf("192.168.999.999") !== -1;
 		}
 	};
 

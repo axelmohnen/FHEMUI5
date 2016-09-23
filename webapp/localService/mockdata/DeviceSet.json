@@ -1,69 +1,69 @@
 [{
 	"GroupID": "shutters",
-	"DeviceID": "eg.wz.rl.01",
-	"DeviceDescription": "Wohnzimmer gross",
+	"DeviceID": "shutter1",
+	"DeviceDescription": "Wohnzimmer 1",
 	"DeviceType": "shutter",
 	"DeviceIDTech": "",
 	"DeviceSeq": "1"
 }, {
 	"GroupID": "shutters",
-	"DeviceID": "eg.ez.rl.01",
-	"DeviceDescription": "Esszimmer gross",
+	"DeviceID": "shutter2",
+	"DeviceDescription": "Wohnzimmer 2",
 	"DeviceSeq": "2",
 	"DeviceType": "shutter"
 }, {
 	"GroupID": "shutters",
-	"DeviceID": "og.ks.rl.01",
-	"DeviceDescription": "Schlafzimmer Konrad",
-	"DeviceSeq": "4",
-	"DeviceType": "shutter"
-}, {
-	"GroupID": "shutters",
-	"DeviceID": "og.es.rl.01",
-	"DeviceDescription": "Schlafzimmer Eltern",
+	"DeviceID": "shutter3",
+	"DeviceDescription": "Esszimmer 1",
 	"DeviceSeq": "3",
 	"DeviceType": "shutter"
 }, {
+	"GroupID": "shutters",
+	"DeviceID": "shutter4",
+	"DeviceDescription": "Esszimmer 2",
+	"DeviceSeq": "4",
+	"DeviceType": "shutter"
+}, {
 	"GroupID": "sunblinds",
-	"DeviceID": "eg.te.pm.01",
+	"DeviceID": "sunblind1",
 	"DeviceDescription": "Wohnzimmer",
 	"DeviceSeq": "2",
 	"DeviceType": "sunblind"
 }, {
 	"GroupID": "sunblinds",
-	"DeviceID": "eg.te.pm.02",
+	"DeviceID": "sunblind2",
 	"DeviceDescription": "Esszimmer",
 	"DeviceSeq": "1",
 	"DeviceType": "sunblind"
 }, {
 	"GroupID": "state",
-	"DeviceID": "og.bz.th.01",
+	"DeviceID": "th_bad1",
 	"DeviceDescription": "T/H Badezimmer",
 	"DeviceSeq": "1"
 }, {
 	"GroupID": "state",
-	"DeviceID": "eg.hw.sz.haushalt",
+	"DeviceID": "power_haushalt",
 	"DeviceDescription": "Stromzähler Haushalt",
 	"DeviceSeq": "3"
 }, {
 	"GroupID": "switches",
-	"DeviceID": "og.bz.sd.heizung.dum1",
+	"DeviceID": "heater_bad1",
 	"DeviceDescription": "Badheizkörper",
 	"DeviceType": "switch",
 	"DeviceSeq": "1"
 }, {
 	"GroupID": "state",
-	"DeviceID": "aa.gh.rt.01",
+	"DeviceID": "watertank1",
 	"DeviceDescription": "Wasserzisterne",
 	"DeviceSeq": "5"
 }, {
 	"GroupID": "state",
-	"DeviceID": "aa.gh.we.01",
+	"DeviceID": "weather1",
 	"DeviceDescription": "Wetterstation",
 	"DeviceSeq": "6"
 }, {
 	"GroupID": "state",
-	"DeviceID": "eg.hw.sz.wp",
+	"DeviceID": "power_wp",
 	"DeviceDescription": "Stromzähler Wärmepumpe",
 	"DeviceSeq": "4"
 }]
