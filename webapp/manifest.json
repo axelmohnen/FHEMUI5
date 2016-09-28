@@ -12,11 +12,18 @@
 		},
 		"dataSources": {
 			"mainService": {
-				"uri": "http://192.168.999.999:8083/fhem",
+				"uri": "localService/mockserver.js",
 				"type": "OData",
 				"settings": {
 					"odataVersion": "2.0",
 					"localUri": "localService/metadata.xml"
+				}
+			},
+			"FhemService": {
+				"uri": "http://192.168.999.999:8083/fhem",
+				"type": "OData",
+				"settings": {
+					"odataVersion": "2.0"
 				}
 			}
 		},
@@ -85,6 +92,16 @@
 				"settings": {
 					"bundleName": "fhemui5.i18n.i18n"
 				}
+			},
+			"FhemService": {
+				"type": "sap.ui.model.odata.v2.ODataModel",
+				"settings": {
+					"defaultOperationMode": "Server",
+					"defaultBindingMode": "OneTime",
+					"defaultCountMode": "Request"
+				},
+				"dataSource": "FhemService",
+				"preload": false
 			}
 		},
 		"routing": {

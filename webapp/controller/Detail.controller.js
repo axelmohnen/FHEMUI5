@@ -616,14 +616,14 @@ sap.ui.define([
 			if (!sDeviceID) {
 				return;
 			}
-			var oModel = this.getModel();
-			var sprefix = "?cmd=jsonlist2%20[DeviceID]&XHR=1";
-			var splaceholder = "[DeviceID]";
-			var fhemcmd = oModel.sServiceUrl + sprefix;
-			fhemcmd = fhemcmd.replace(splaceholder, sDeviceID);
+			var oModel = this.getModel("FhemService");
+			var sPrefix = "?cmd=jsonlist2%20[DeviceID]&XHR=1";
+			var sPlaceholder = "[DeviceID]";
+			var sFhemcmd = oModel.sServiceUrl + sPrefix;
+			sFhemcmd = sFhemcmd.replace(sPlaceholder, sDeviceID);
 
 			var oModelFhemData = new sap.ui.model.json.JSONModel();
-			oModelFhemData.loadData(fhemcmd, undefined, false);
+			oModelFhemData.loadData(sFhemcmd, undefined, false);
 			return oModelFhemData;
 		},
 
@@ -636,7 +636,7 @@ sap.ui.define([
 				return;
 			}
 
-			var oModel = this.getModel();
+			var oModel = this.getModel("FhemService");
 			var sPrefix1 = "?cmd=";
 			var sPrefix2 = "set%20[DeviceID]%20[Cmd]";
 			var sPrefix3 = "&XHR=1";

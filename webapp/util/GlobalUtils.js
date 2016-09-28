@@ -11,7 +11,7 @@ sap.ui.define([], function() {
 		},
 
 		checkServiceURL: function(sThis) {
-			var oModel = sThis.getModel();
+			var oModel = sThis.getModel("FhemService");
 			return oModel.sServiceUrl.indexOf("192.168.999.999") !== -1;
 		}
 	};
