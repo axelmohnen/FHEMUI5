@@ -94,14 +94,8 @@
 				}
 			},
 			"FhemService": {
-				"type": "sap.ui.model.odata.v2.ODataModel",
-				"settings": {
-					"defaultOperationMode": "Server",
-					"defaultBindingMode": "OneTime",
-					"defaultCountMode": "Request"
-				},
 				"dataSource": "FhemService",
-				"preload": false
+				"settings": {}
 			}
 		},
 		"routing": {
