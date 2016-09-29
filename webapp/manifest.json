@@ -20,7 +20,7 @@
 				}
 			},
 			"FhemService": {
-				"uri": "http://192.168.999.999:8083/fhem",
+				"uri": "/fhem",
 				"type": "OData",
 				"settings": {
 					"odataVersion": "2.0"

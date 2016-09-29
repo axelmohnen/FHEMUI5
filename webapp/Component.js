@@ -41,6 +41,11 @@ sap.ui.define([
 				var oFhemModel = oMockServer.getEntitySetData("GroupSet");
 				var oFhemModel = oMockServer._getOdataQueryExpand(oFhemModel, "DeviceSet,DeviceSet/ReadingSet", "GroupSet");
 				this.setModel(oFhemModel, "fhem");
+				
+				// Get complete FHEM Service URL
+				var sServer = window.location.origin;
+				var oFhemService = this.getModel("FhemService");
+				oFhemService.sServiceUrl = sServer + oFhemService.sServiceUrl;                         
 			},
 
 			/**
