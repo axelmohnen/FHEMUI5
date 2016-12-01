@@ -66,4 +66,16 @@
 	"DeviceID": "power_wp",
 	"DeviceDescription": "Stromzähler Wärmepumpe",
 	"DeviceSeq": "4"
+}, {
+	"GroupID": "radthermos",
+	"DeviceID": "radthermo1",
+	"DeviceDescription": "Schlafzimmer",
+	"DeviceType": "radthermo",
+	"DeviceSeq": "1"
+}, {
+	"GroupID": "radthermos",
+	"DeviceID": "radthermo2",
+	"DeviceDescription": "Wohnzimmer",
+	"DeviceType": "radthermo",
+	"DeviceSeq": "2"
 }]

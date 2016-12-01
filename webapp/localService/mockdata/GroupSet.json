@@ -14,4 +14,8 @@
 	"GroupID": "sunblinds",
 	"GroupDescription": "Markisen",
 	"GroupSeq": "4"
+}, {
+	"GroupID": "radthermos",
+	"GroupDescription": "Heizkörperthermostate",
+	"GroupSeq": "5"
 }]

@@ -28,7 +28,8 @@ sap.ui.define([
 				IconTabBarVisibility: false,
 				ShuttersVisibility: false,
 				SwitchesVisibility: false,
-				SunblindsVisibility: false
+				SunblindsVisibility: false,
+				RadThermosVisibility: false
 			});
 
 			this.getRouter().getRoute("object").attachPatternMatched(this._onObjectMatched, this);
@@ -47,10 +48,9 @@ sap.ui.define([
 			var oSwitchesModel = new JSONModel();
 			this.setModel(oSwitchesModel, "Switches");
 
-			//Create Trigger and register handler
-			var oTrigger = new sap.ui.core.IntervalTrigger();
-			oTrigger.addListener(this.trigger, this);
-			oTrigger.setInterval(10000);
+			//Model for Radial Thermostats Container
+			var oRadThermosModel = new JSONModel();
+			this.setModel(oRadThermosModel, "RadThermos");
 
 		},
 		/* =========================================================== */
@@ -207,6 +207,7 @@ sap.ui.define([
 					oViewModel.setProperty("/ShuttersVisibility", true);
 					oViewModel.setProperty("/SwitchesVisibility", false);
 					oViewModel.setProperty("/SunblindsVisibility", false);
+					oViewModel.setProperty("/RadThermosVisibility", false);
 					oViewModel.setProperty("/StateTileContainerVisibility", false);
 					break;
 				case 'switches':
@@ -214,6 +215,7 @@ sap.ui.define([
 					oViewModel.setProperty("/ShuttersVisibility", false);
 					oViewModel.setProperty("/SwitchesVisibility", true);
 					oViewModel.setProperty("/SunblindsVisibility", false);
+					oViewModel.setProperty("/RadThermosVisibility", false);
 					oViewModel.setProperty("/StateTileContainerVisibility", false);
 					break;
 				case 'sunblinds':
@@ -221,6 +223,15 @@ sap.ui.define([
 					oViewModel.setProperty("/ShuttersVisibility", false);
 					oViewModel.setProperty("/SwitchesVisibility", false);
 					oViewModel.setProperty("/SunblindsVisibility", true);
+					oViewModel.setProperty("/RadThermosVisibility", false);
+					oViewModel.setProperty("/StateTileContainerVisibility", false);
+					break;
+				case 'radthermos':
+					oViewModel.setProperty("/IconTabBarVisibility", true);
+					oViewModel.setProperty("/ShuttersVisibility", false);
+					oViewModel.setProperty("/SwitchesVisibility", false);
+					oViewModel.setProperty("/SunblindsVisibility", false);
+					oViewModel.setProperty("/RadThermosVisibility", true);
 					oViewModel.setProperty("/StateTileContainerVisibility", false);
 					break;
 				default:
@@ -327,6 +338,12 @@ sap.ui.define([
 					oNumericContent.setIcon(oReadingSet.NumericContentIcon);
 					oNumericContent.setWidth("100%");
 
+					// Adapt control for smaller font size
+					if (oReadingSet.NumericContentSmallSize) {
+						oNumericContent.addStyleClass("sapMNCValueCust");
+						oNumericContent.setTruncateValueTo(5);
+					}
+
 					// Add NUmeric Tile content to Tile Content
 					oTileContent.setContent(oNumericContent);
 					break;
@@ -377,6 +394,18 @@ sap.ui.define([
 
 					// Add HarveyBall to Tile Content
 					oTileContent.setContent(oHarveyBall);
+					break;
+
+				case "Feed":
+					var oFeedContent = new sap.m.FeedContent(sIndex);
+					//oFeedContent.setContentText(oReadingSet.ReadingValue);
+					//oFeedContent.setSubheader(oReadingSet.ReadingValue);
+					oFeedContent.setTruncateValueTo(5);
+					oFeedContent.setValue(oReadingSet.ReadingValue);
+
+					// Add Feed Tile content to Tile Content
+					oTileContent.setContent(oFeedContent);
+
 					break;
 
 			}
@@ -511,6 +540,51 @@ sap.ui.define([
 			}
 		},
 
+		buildRadThermosModel: function(sGroupID) {
+			//Check Group ID
+			if (sGroupID !== "radthermos") {
+				return;
+			}
+
+			var othis = this;
+			// Retrieve Fhem data model
+			var oGroupSet = this.getModel("fhem");
+			if (!oGroupSet) {
+				return;
+			}
+
+			var oDeviceSet = this.getDeviceSet(oGroupSet, sGroupID);
+			if (!oDeviceSet) {
+				return;
+			}
+			// Retrieve Radiator Thermonstats Model
+			var oRadThermosModel = this.getModel("RadThermos");
+			var oRadThermosList = {
+				results: []
+			};
+
+			if (oDeviceSet instanceof Array) {
+				oDeviceSet.forEach(function(oValue, i) {
+					//Retrieve Reading Values
+					var sReqTemp = parseFloat(othis.getReadingValue(oValue, "desired-temp"));
+					var sColorPalette;
+
+					// Set Color Palette
+					sColorPalette = GlobalUtils.setColorPalette4RadThermo(sReqTemp);
+
+					// Set Model data
+					oRadThermosList.results[i] = {
+						RadThermoID: oValue.DeviceID,
+						RadThermoDescription: oValue.DeviceDescription,
+						RadThermoSeq: oValue.DeviceSeq,
+						RadThermoReqTemp: sReqTemp,
+						RadThermoColorPalette: sColorPalette
+					};
+				});
+				oRadThermosModel.setData(oRadThermosList);
+			}
+		},
+
 		getDeviceSet: function(oGroupSet, sGroupID) {
 			if (oGroupSet) {
 				var oDeviceSet;
@@ -544,7 +618,7 @@ sap.ui.define([
 		},
 
 		refresh: function(sGroupID) {
-			var othis = this;
+			var oThis = this;
 			if (!sGroupID) {
 				return;
 			}
@@ -559,18 +633,148 @@ sap.ui.define([
 				return;
 			}
 
-			// Check Service URL
-			if (GlobalUtils.checkServiceURL(this)) {
-				MessageBox.error( "Service URL is not valid" );
-			} else {
+			// TODO: Remove coding if not needed 
+			// // Check Service URL
+			// if (GlobalUtils.checkServiceURL(this)) {
+			// 	MessageBox.error("Service URL is not valid");
+			// } else {
+
 			// Get data from Fhem via JSON List
-				if (oDeviceSet instanceof Array) {
-					oDeviceSet.forEach(function(oValue, i) {
-						othis.refreshReadings(oValue.DeviceID, oValue.ReadingSet.results);
-					});
-				}
+			if (oDeviceSet instanceof Array) {
+				oDeviceSet.forEach(function(oValue, i) {
+					oThis.refreshReadings(sGroupID, oValue.DeviceID, oValue.ReadingSet.results);
+				});
 			}
 
+			//}
+
+			// TODO: Remove Coding
+			// Build Models
+			oThis.buildModels(sGroupID);
+
+			// TODO: Remove Coding
+			// Update Binding
+			//oThis.updateBinding();
+		},
+
+		refreshReadings: function(sGroupID, sDeviceID, oReadingSet) {
+			// Check input
+			if (!sGroupID) {
+				return;
+			}
+			// Check input
+			if (!sDeviceID) {
+				return;
+			}
+			if (!oReadingSet) {
+				return;
+			}
+
+			// We accpect only one Device ID for ReadingsSet
+			// Read all readings per Device in order to limit HTTP requests
+			// For aync Mode
+			this.readFhemData(sGroupID, sDeviceID, oReadingSet);
+
+			// TODO: Remove Coding
+			// // For sync mode 
+			// var oModelFhemData = this.readFhemData(sDeviceID);
+
+			// if (!oModelFhemData) {
+			// 	return;
+			// }
+			// if (oReadingSet instanceof Array) {
+			// 	oReadingSet.forEach(function(oValue, i) {
+			// 		// Get ReadingsValue from FHEM Model
+			// 		var sReadingValue = oModelFhemData.getProperty("/Results/0/Readings/" + oValue.ReadingID + "/Value");
+			// 		// Keep old reading value
+			// 		oValue.ReadingValueOld = oValue.ReadingValue;
+			// 		// Set new reading value
+			// 		oValue.ReadingValue = sReadingValue;
+			// 		if (!oValue.ReadingValue) {
+			// 			oValue.ReadingValue = "0";
+			// 		}
+			// 	});
+			// }
+		},
+
+		readFhemData: function(sGroupID, sDeviceID, oReadingSet) {
+			// Check input
+			if (!sGroupID) {
+				return;
+			}
+			// Check input
+			if (!sDeviceID) {
+				return;
+			}
+			var oThis = this;
+			var oModel = this.getModel("FhemService");
+			var sPrefix = "?cmd=jsonlist2%20[DeviceID]&XHR=1";
+			var sPlaceholder = "[DeviceID]";
+			var sFhemcmd = oModel.sServiceUrl + sPrefix;
+			sFhemcmd = sFhemcmd.replace(sPlaceholder, sDeviceID);
+
+			var oModelFhemData = new sap.ui.model.json.JSONModel();
+
+			// TODO: Remove Coding
+			// For synchronious mode
+			// oModelFhemData.loadData(sFhemcmd, undefined, false);
+			// return oModelFhemData;
+
+			// Read FHEM data asynchronous
+			oModelFhemData.loadData(sFhemcmd, undefined, true);
+
+			// Handle Request Complete
+			oModelFhemData.attachRequestCompleted(function(oData) {
+
+				// Check if we received the data sucessfully
+				if (!oModelFhemData.getProperty("/Results/")) {
+					return;
+				}
+
+				// Map Fhem readings to FHEM Model
+				if (oReadingSet instanceof Array) {
+					oReadingSet.forEach(function(oValue, i) {
+						// Get ReadingsValue from FHEM Model
+						var sReadingValue = oModelFhemData.getProperty("/Results/0/Readings/" + oValue.ReadingID + "/Value");
+						// Keep old reading value
+						oValue.ReadingValueOld = oValue.ReadingValue;
+						// Set new reading value
+						oValue.ReadingValue = sReadingValue;
+						if (!oValue.ReadingValue) {
+							oValue.ReadingValue = "0";
+						}
+					});
+				}
+				// Build Models
+				oThis.buildModels(sGroupID);
+
+				// TODO: Remove Coding
+				// Update Binding
+				//oThis.updateBinding();
+
+			});
+
+			// Error: Service URL is not valid
+			oModelFhemData.attachRequestFailed(function(oData) {
+				MessageBox.error("Service URL is not valid: " + sFhemcmd);
+			});
+		},
+
+		updateBinding: function() {
+			// Retrieve Models
+			var oShuttersModel = this.getModel("Shutters");
+			var oSunblindsModel = this.getModel("Sunblinds");
+			var oSwitchesModel = this.getModel("Switches");
+			var oRadThermosModel = this.getModel("RadThermos");
+
+			// Update Bindings
+			oShuttersModel.updateBindings();
+			oSunblindsModel.updateBindings();
+			oSwitchesModel.updateBindings();
+			oRadThermosModel.updateBindings();
+		},
+
+		buildModels: function(sGroupID) {
 			// Build State Tile Model	
 			this.buildStateTileModel(sGroupID);
 
@@ -582,49 +786,9 @@ sap.ui.define([
 
 			//Update Switches Model
 			this.buildSwitchesModel(sGroupID);
-		},
 
-		refreshReadings: function(sDeviceID, oReadingSet) {
-			// Check input
-			if (!sDeviceID) {
-				return;
-			}
-			if (!oReadingSet) {
-				return;
-			}
-
-			// We accpect only one Device ID for ReadingsSet
-			// Read all readings per Device in order to limit HTTP requests
-			var oModelFhemData = this.readFhemData(sDeviceID);
-
-			if (!oModelFhemData) {
-				return;
-			}
-			if (oReadingSet instanceof Array) {
-				oReadingSet.forEach(function(oValue, i) {
-					// Get ReadingsValue from FHEM Model
-					var sReadingValue = oModelFhemData.getProperty("/Results/0/Readings/" + oValue.ReadingID + "/Value");
-					oValue.ReadingValue = sReadingValue;
-					if (!oValue.ReadingValue) {
-						oValue.ReadingValue = "0";
-					}
-				});
-			}
-		},
-
-		readFhemData: function(sDeviceID) {
-			if (!sDeviceID) {
-				return;
-			}
-			var oModel = this.getModel("FhemService");
-			var sPrefix = "?cmd=jsonlist2%20[DeviceID]&XHR=1";
-			var sPlaceholder = "[DeviceID]";
-			var sFhemcmd = oModel.sServiceUrl + sPrefix;
-			sFhemcmd = sFhemcmd.replace(sPlaceholder, sDeviceID);
-
-			var oModelFhemData = new sap.ui.model.json.JSONModel();
-			oModelFhemData.loadData(sFhemcmd, undefined, false);
-			return oModelFhemData;
+			//Update Radial Thermostats Model
+			this.buildRadThermosModel(sGroupID);
 		},
 
 		fireFhemCmd: function(sDeviceID, sCmd) {
@@ -706,12 +870,91 @@ sap.ui.define([
 			this.fireFhemCmd(sDeviceID, sKey);
 		},
 
-		trigger: function() {
-			// TODO: Add auto refresh
-			// if (this.ObjectId) {
-			// 	this.refresh(this.ObjectId);
-			// 	MessageToast.show("Refresh trigger");
-			// }
+		onRadThermoSelected: function(evt) {
+			// Get selected device id
+			var sDeviceID = evt.getSource().data("DeviceID");
+			// Get Action Selected
+			var sAction = evt.getSource().data("Action");
+
+			// Retrieve Radiator Thermonstats Model
+			var oRadThermosModel = this.getModel("RadThermos");
+			var aRadThermos = oRadThermosModel.getProperty("/results");
+			var sReqTemp;
+			var sFhemCmd;
+
+			var iRadThermosLen = aRadThermos.length;
+			for (var i = 0; i < iRadThermosLen; i++) {
+				// Exit if DeviceID as been found
+				if (aRadThermos[i].RadThermoID === sDeviceID) {
+					sReqTemp = aRadThermos[i].RadThermoReqTemp;
+					break;
+				}
+			}
+
+			switch (sAction) {
+				case "up":
+					sReqTemp += 1;
+					aRadThermos[i].RadThermoReqTemp = sReqTemp;
+					break;
+
+				case "down":
+					sReqTemp -= 1;
+					aRadThermos[i].RadThermoReqTemp = sReqTemp;
+					break;
+
+				case "boost":
+					sReqTemp = 30;
+					aRadThermos[i].RadThermoReqTemp = sReqTemp;
+					break;
+			}
+
+			// Set Color Palette
+			aRadThermos[i].RadThermoColorPalette = GlobalUtils.setColorPalette4RadThermo(aRadThermos[i].RadThermoReqTemp);
+
+			// Update View binding
+			oRadThermosModel.updateBindings();
+
+			// Fire FHEM Command
+			sFhemCmd = "desired-temp " + aRadThermos[i].RadThermoReqTemp;
+			this.fireFhemCmd(sDeviceID, sFhemCmd);
+		},
+
+		startAutoRefresh: function() {
+			//Create Trigger and register handler
+			if (!this.oTrigger) {
+				this.oTrigger = new sap.ui.core.IntervalTrigger();
+			}
+
+			this.oTrigger.addListener(this.triggerAutoRefresh, this);
+			this.oTrigger.setInterval(10000);
+		},
+
+		stopAutoRefresh: function() {
+			//Stop Trigger
+			this.oTrigger.removeListener(this.triggerAutoRefresh, this);
+		},
+
+		triggerAutoRefresh: function() {
+			// Refresh data
+			if (this.ObjectId) {
+				this.refresh(this.ObjectId);
+				MessageToast.show("Refresh trigger");
+			}
+		},
+
+		onPressAutoRefresh: function(evt) {
+			if (evt.getParameter("pressed")) {
+				this.startAutoRefresh();
+			} else {
+				this.stopAutoRefresh();
+			}
+		},
+
+		handlePullToRefresh: function() {
+			// Refresh data
+			if (this.ObjectId) {
+				this.refresh(this.ObjectId);
+			}
 		}
 	});
 });

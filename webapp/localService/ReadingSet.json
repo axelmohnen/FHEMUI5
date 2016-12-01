@@ -23,7 +23,7 @@
 	"TileHeader": "Stromzähler ",
 	"TileSubHeader": "Haushalt",
 	"NumericContentScale": "",
-	"TileContentType": "numeric",
+	"TileContentType": "Feed",
 	"NumericContentIndicator": "",
 	"NumericContentValueColor": "",
 	"NumericContentIcon": "sap-icon://line-charts",

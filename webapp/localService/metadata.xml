@@ -46,6 +46,7 @@
 				<Property Name="NumericContentIndicator" Type="Edm.String" Nullable="true"></Property>
 				<Property Name="NumericContentValueColor" Type="Edm.String" Nullable="true"></Property>
 				<Property Name="NumericContentIcon" Type="Edm.String" Nullable="true"></Property>
+				<Property Name="NumericContentSmallSize" Type="Edm.Boolean" Nullable="true"></Property>
 				<Property Name="HarveyBallTotal" Type="Edm.String" Nullable="true"></Property>
 				<Property Name="HarveyBallTotalScale" Type="Edm.String" Nullable="true"></Property>
 				<Property Name="HarveyBallFractionScale" Type="Edm.String" Nullable="true"></Property>

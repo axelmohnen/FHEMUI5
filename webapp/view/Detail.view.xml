@@ -3,6 +3,7 @@
 	controllerName="fhemui5.controller.Detail">
 	<semantic:DetailPage id="page" navButtonPress="onNavBack" showNavButton="{device>/system/phone}" title="{GroupDescription}"
 		busy="{detailView>/busy}" busyIndicatorDelay="{detailView>/delay}">
+		<PullToRefresh id="pullToRefresh" refresh="handlePullToRefresh" />
 		<semantic:content>
 			<l:HorizontalLayout id="TileContainer" allowWrapping="true" visible="{detailView>/StateTileContainerVisibility}">
 				<l:content>
@@ -119,8 +120,53 @@
 							</columns>
 						</Table>
 					</IconTabFilter>
+					<IconTabFilter id="IconTabBarRadThermos" tooltip="{GroupDescription}" text="" icon="sap-icon://heating-cooling"
+						visible="{detailView>/RadThermosVisibility}">
+						<Table id="TabRadThermos" items="{path: 'RadThermos>/results', sorter: {path: 'RadThermoSeq', descending: false }}"
+							visible="{detailView>/RadThermosVisibility}">
+							<items>
+								<ColumnListItem counter="0" id="ColListItemRadThermos" vAlign="Top">
+									<cells>
+										<l:VerticalLayout id="containerLayout" width="100%">
+											<l:BlockLayout id="BlockLayout">
+												<l:BlockLayoutRow>
+													<l:BlockLayoutCell>
+														<Label id="LabelRadThermosButtons" text="{RadThermos>RadThermoDescription}"/>
+													</l:BlockLayoutCell>
+													<l:BlockLayoutCell>
+														<microchart:HarveyBallMicroChart size="S" total="30" totalScale="°C" showTotal="false" showFractions="true" showfractionScale="true"
+															colorPalette="{RadThermos>RadThermoColorPalette}">
+															<microchart:items>
+																<microchart:HarveyBallMicroChartItem fraction="{RadThermos>RadThermoReqTemp}" fractionScale="°C"/>
+															</microchart:items>
+														</microchart:HarveyBallMicroChart>
+													</l:BlockLayoutCell>
+												</l:BlockLayoutRow>
+												<l:BlockLayoutRow>
+													<l:BlockLayoutCell>
+														<Button id="ButtonRadThermosUp" icon="sap-icon://collapse-group" enabled="true" press="onRadThermoSelected" app:Action="up"
+															app:DeviceID="{RadThermos>RadThermoID}" width="30%"/>
+														<Button id="ButtonRadThermosDown" icon="sap-icon://expand-group" enabled="true" press="onRadThermoSelected" app:Action="down"
+															app:DeviceID="{RadThermos>RadThermoID}" width="30%"/>
+														<Button id="ButtonRadThermosBoost" icon="sap-icon://goal" enabled="true" press="onRadThermoSelected" app:Action="boost"
+															app:DeviceID="{RadThermos>RadThermoID}" width="30%"/>
+													</l:BlockLayoutCell>
+												</l:BlockLayoutRow>
+											</l:BlockLayout>
+										</l:VerticalLayout>
+									</cells>
+								</ColumnListItem>
+							</items>
+							<columns>
+								<Column id="ColRadThermos"/>
+							</columns>
+						</Table>
+					</IconTabFilter>
 				</items>
 			</IconTabBar>
 		</semantic:content>
+		<semantic:customFooterContent>
+			<ToggleButton id="ButtonAutoRefresh" text="Auto Refresh" enabled="true" pressed="false" press="onPressAutoRefresh"/>
+		</semantic:customFooterContent>
 	</semantic:DetailPage>
 </mvc:View>
