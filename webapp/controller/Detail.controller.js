@@ -954,6 +954,7 @@ sap.ui.define([
 			// Refresh data
 			if (this.ObjectId) {
 				this.refresh(this.ObjectId);
+				this.getView().byId("pullToRefresh").hide();
 			}
 		}
 	});
