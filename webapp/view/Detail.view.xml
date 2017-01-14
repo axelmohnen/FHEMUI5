@@ -1,9 +1,9 @@
 <mvc:View xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:semantic="sap.m.semantic" xmlns:l="sap.ui.layout" xmlns:form="sap.ui.layout.form"
 	xmlns:microchart="sap.suite.ui.microchart" xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
-	controllerName="fhemui5.controller.Detail">
+	xmlns:cust="fhemui5.controls" controllerName="fhemui5.controller.Detail">
 	<semantic:DetailPage id="page" navButtonPress="onNavBack" showNavButton="{device>/system/phone}" title="{GroupDescription}"
 		busy="{detailView>/busy}" busyIndicatorDelay="{detailView>/delay}">
-		<PullToRefresh id="pullToRefresh" refresh="handlePullToRefresh" />
+		<PullToRefresh id="pullToRefresh" refresh="handlePullToRefresh"/>
 		<semantic:content>
 			<l:HorizontalLayout id="TileContainer" allowWrapping="true" visible="{detailView>/StateTileContainerVisibility}">
 				<l:content>
@@ -144,11 +144,11 @@
 												</l:BlockLayoutRow>
 												<l:BlockLayoutRow>
 													<l:BlockLayoutCell>
-														<Button id="ButtonRadThermosUp" icon="sap-icon://collapse-group" enabled="true" press="onRadThermoSelected" app:Action="up"
-															app:DeviceID="{RadThermos>RadThermoID}" width="30%"/>
-														<Button id="ButtonRadThermosDown" icon="sap-icon://expand-group" enabled="true" press="onRadThermoSelected" app:Action="down"
-															app:DeviceID="{RadThermos>RadThermoID}" width="30%"/>
+														<cust:ValuePicker id="ValuePickerRadThermos" change="onRadThermoSelected" placeholder="Temperatur eingeben" fromStep="0" toStep="30"
+															pickerTitle="Temperatur" app:DeviceID="{RadThermos>RadThermoID}" app:Action="valuePicker" width="30%"/>
 														<Button id="ButtonRadThermosBoost" icon="sap-icon://goal" enabled="true" press="onRadThermoSelected" app:Action="boost"
+															app:DeviceID="{RadThermos>RadThermoID}" width="30%"/>
+														<Button id="ButtonRadThermosOff" icon="sap-icon://log" enabled="true" press="onRadThermoSelected" app:Action="off"
 															app:DeviceID="{RadThermos>RadThermoID}" width="30%"/>
 													</l:BlockLayoutCell>
 												</l:BlockLayoutRow>

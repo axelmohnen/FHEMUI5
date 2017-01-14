@@ -2,7 +2,7 @@
 	"GroupID": "state",
 	"DeviceID": "th_bad1",
 	"ReadingID": "temperature",
-	"ReadingValue": "22",
+	"ReadingValue": "20",
 	"TileHeader": "Badezimmer",
 	"TileSubHeader": "",
 	"TileHeaderImage": "",
@@ -28,7 +28,8 @@
 	"NumericContentValueColor": "",
 	"NumericContentIcon": "sap-icon://line-charts",
 	"TileFooter": "kwh",
-	"NumericContentSmallSize": true
+	"NumericContentSmallSize": true,
+	"TileDetailView": "ChartPowerMeter"
 }, {
 	"DeviceID": "shutter1",
 	"ReadingID": "pct",

@@ -1,14 +1,14 @@
 <edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:sap="http://www.sap.com/Protocols/SAPData">
 	<edmx:Reference
-			Uri="http://server:port/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CORE',Version='0001',SAP__Origin='')/$value"
-			xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+		Uri="http://server:port/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CORE',Version='0001',SAP__Origin='')/$value"
+		xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
 		<edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="UI"/>
 	</edmx:Reference>
 	<edmx:DataServices xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" m:DataServiceVersion="2.0">
 		<Schema xmlns="http://schemas.microsoft.com/ado/2008/09/edm" Namespace="fhemui5_srv">
 			<EntityType Name="Group">
 				<Key>
-					<PropertyRef  Name="GroupID"/>
+					<PropertyRef Name="GroupID"/>
 				</Key>
 				<Property Name="GroupID" Type="Edm.String" Nullable="false" sap:label=""></Property>
 				<Property Name="GroupDescription" Type="Edm.String" Nullable="true"></Property>
@@ -17,20 +17,21 @@
 			</EntityType>
 			<EntityType Name="Device">
 				<Key>
-					<PropertyRef  Name="GroupID"/>
-					<PropertyRef  Name="DeviceID"/>
+					<PropertyRef Name="GroupID"/>
+					<PropertyRef Name="DeviceID"/>
 				</Key>
 				<Property Name="GroupID" Type="Edm.String" Nullable="false" sap:label=""></Property>
 				<Property Name="DeviceID" Type="Edm.String" Nullable="false" sap:label=""></Property>
 				<Property Name="DeviceDescription" Type="Edm.String" Nullable="true"></Property>
 				<Property Name="DeviceType" Type="Edm.String" Nullable="true"></Property>
 				<Property Name="DeviceSeq" Type="Edm.String" Nullable="true"></Property>
-				<NavigationProperty Name="ReadingSet" Relationship="fhemui5_srv.DeviceReading" ToRole="ToRole_DeviceReading" FromRole="FromRole_DeviceReading"></NavigationProperty>
+				<NavigationProperty Name="ReadingSet" Relationship="fhemui5_srv.DeviceReading" ToRole="ToRole_DeviceReading"
+					FromRole="FromRole_DeviceReading"></NavigationProperty>
 			</EntityType>
 			<EntityType Name="Reading">
 				<Key>
-					<PropertyRef  Name="DeviceID"/>
-					<PropertyRef  Name="ReadingID"/>
+					<PropertyRef Name="DeviceID"/>
+					<PropertyRef Name="ReadingID"/>
 				</Key>
 				<Property Name="DeviceID" Type="Edm.String" Nullable="false" sap:label=""></Property>
 				<Property Name="ReadingID" Type="Edm.String" Nullable="false" sap:label=""></Property>
@@ -41,6 +42,7 @@
 				<Property Name="TileFooter" Type="Edm.String" Nullable="true"></Property>
 				<Property Name="TileUnit" Type="Edm.String" Nullable="true"></Property>
 				<Property Name="TileContentType" Type="Edm.String" Nullable="true"></Property>
+				<Property Name="TileDetailView" Type="Edm.String" Nullable="true"></Property>
 				<Property Name="NumericContentScale" Type="Edm.String" Nullable="true"></Property>
 				<Property Name="NumericContentSetIndicator" Type="Edm.Boolean" Nullable="true"></Property>
 				<Property Name="NumericContentIndicator" Type="Edm.String" Nullable="true"></Property>
@@ -84,12 +86,12 @@
 				<EntitySet Name="DeviceSet" EntityType="fhemui5_srv.Device"></EntitySet>
 				<EntitySet Name="ReadingSet" EntityType="fhemui5_srv.Reading"></EntitySet>
 				<AssociationSet Name="GroupDeviceSet" Association="fhemui5_srv.GroupDevice">
-					<End Role="FromRole_GroupDevice" EntitySet="GroupSet" ></End>
-					<End Role="ToRole_GroupDevice"  EntitySet="DeviceSet"></End>
+					<End Role="FromRole_GroupDevice" EntitySet="GroupSet"></End>
+					<End Role="ToRole_GroupDevice" EntitySet="DeviceSet"></End>
 				</AssociationSet>
 				<AssociationSet Name="DeviceReadingSet" Association="fhemui5_srv.DeviceReading">
-					<End Role="FromRole_DeviceReading" EntitySet="DeviceSet" ></End>
-					<End Role="ToRole_DeviceReading"  EntitySet="ReadingSet"></End>
+					<End Role="FromRole_DeviceReading" EntitySet="DeviceSet"></End>
+					<End Role="ToRole_DeviceReading" EntitySet="ReadingSet"></End>
 				</AssociationSet>
 			</EntityContainer>
 		</Schema>

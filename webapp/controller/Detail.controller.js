@@ -9,7 +9,8 @@ sap.ui.define([
 	"fhemui5/localService/mockserver",
 	"fhemui5/util/GlobalUtils",
 	"sap/m/MessageBox",
-], function(BaseController, JSONModel, formatter, MessageToast, History, IntervalTrigger, mockserver, GlobalUtils, MessageBox) {
+	"sap/ui/Device"
+], function(BaseController, JSONModel, formatter, MessageToast, History, IntervalTrigger, mockserver, GlobalUtils, MessageBox, Device) {
 	"use strict";
 	return BaseController.extend("fhemui5.controller.Detail", {
 		formatter: formatter,
@@ -303,6 +304,12 @@ sap.ui.define([
 			oTile.setHeader(oReadingSet.TileHeader);
 			oTile.setSubheader(oReadingSet.TileSubHeader);
 			oTile.setHeaderImage(oReadingSet.TileHeaderImage);
+
+			// Add Detail view on press
+			if (oReadingSet.TileDetailView) {
+				this.oReadingSet = oReadingSet;
+				oTile.attachPress(this.onPressTile, this);
+			}
 
 			// Create Tile Content
 			var oTileContent = new sap.m.TileContent(sIndex);
@@ -639,12 +646,13 @@ sap.ui.define([
 			// 	MessageBox.error("Service URL is not valid");
 			// } else {
 
+			//********
 			// Get data from Fhem via JSON List
-			if (oDeviceSet instanceof Array) {
-				oDeviceSet.forEach(function(oValue, i) {
-					oThis.refreshReadings(sGroupID, oValue.DeviceID, oValue.ReadingSet.results);
-				});
-			}
+			// if (oDeviceSet instanceof Array) {
+			// 	oDeviceSet.forEach(function(oValue, i) {
+			// 		oThis.refreshReadings(sGroupID, oValue.DeviceID, oValue.ReadingSet.results);
+			// 	});
+			// }
 
 			//}
 
@@ -892,18 +900,18 @@ sap.ui.define([
 			}
 
 			switch (sAction) {
-				case "up":
-					sReqTemp += 1;
-					aRadThermos[i].RadThermoReqTemp = sReqTemp;
-					break;
-
-				case "down":
-					sReqTemp -= 1;
+				case "valuePicker":
+					sReqTemp = parseFloat(evt.getParameter("value"));
 					aRadThermos[i].RadThermoReqTemp = sReqTemp;
 					break;
 
 				case "boost":
 					sReqTemp = 30;
+					aRadThermos[i].RadThermoReqTemp = sReqTemp;
+					break;
+
+				case "off":
+					sReqTemp = 0;
 					aRadThermos[i].RadThermoReqTemp = sReqTemp;
 					break;
 			}
@@ -956,6 +964,15 @@ sap.ui.define([
 				this.refresh(this.ObjectId);
 				this.getView().byId("pullToRefresh").hide();
 			}
+		},
+
+		onPressTile: function() {
+			var bReplace = !Device.system.phone;
+			this.getRouter().navTo("chartsPowerMeter", {
+				DeviceID: this.oReadingSet.DeviceID,
+				ReadingID: this.oReadingSet.ReadingID
+			}, bReplace);
 		}
+
 	});
 });

@@ -118,6 +118,12 @@
 				"pattern": "GroupSet/{objectId}",
 				"name": "object",
 				"target": ["master", "object"]
+			}, {
+				"name": "chartsPowerMeter",
+				"pattern": "{DeviceID}/{ReadingID}",
+				"titleTarget": "",
+				"greedy": false,
+				"target": ["object", "chartsPowerMeter"]
 			}],
 			"targets": {
 				"master": {
@@ -142,6 +148,14 @@
 				"notFound": {
 					"viewName": "NotFound",
 					"viewId": "notFound"
+				},
+				"chartsPowerMeter": {
+					"viewType": "XML",
+					"transition": "slide",
+					"clearAggregation": true,
+					"viewName": "ChartsPowerMeter",
+					"viewId": "ChartsPowerMeter",
+					"viewLevel": 3
 				}
 			}
 		},
