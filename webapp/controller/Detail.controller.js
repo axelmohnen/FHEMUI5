@@ -640,29 +640,17 @@ sap.ui.define([
 				return;
 			}
 
-			// TODO: Remove coding if not needed 
-			// // Check Service URL
-			// if (GlobalUtils.checkServiceURL(this)) {
-			// 	MessageBox.error("Service URL is not valid");
-			// } else {
 
-			//********
 			// Get data from Fhem via JSON List
-			// if (oDeviceSet instanceof Array) {
-			// 	oDeviceSet.forEach(function(oValue, i) {
-			// 		oThis.refreshReadings(sGroupID, oValue.DeviceID, oValue.ReadingSet.results);
-			// 	});
-			// }
+			if (oDeviceSet instanceof Array) {
+				oDeviceSet.forEach(function(oValue, i) {
+					oThis.refreshReadings(sGroupID, oValue.DeviceID, oValue.ReadingSet.results);
+				});
+			}
 
-			//}
-
-			// TODO: Remove Coding
 			// Build Models
 			oThis.buildModels(sGroupID);
 
-			// TODO: Remove Coding
-			// Update Binding
-			//oThis.updateBinding();
 		},
 
 		refreshReadings: function(sGroupID, sDeviceID, oReadingSet) {
