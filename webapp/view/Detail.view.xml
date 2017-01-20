@@ -1,8 +1,5 @@
-<mvc:View xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:semantic="sap.m.semantic" xmlns:l="sap.ui.layout" xmlns:form="sap.ui.layout.form"
-	xmlns:microchart="sap.suite.ui.microchart" xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
-	xmlns:cust="fhemui5.controls" controllerName="fhemui5.controller.Detail">
-	<semantic:DetailPage id="page" navButtonPress="onNavBack" showNavButton="{device>/system/phone}" title="{GroupDescription}"
-		busy="{detailView>/busy}" busyIndicatorDelay="{detailView>/delay}">
+<mvc:View xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:semantic="sap.m.semantic" xmlns:l="sap.ui.layout" xmlns:form="sap.ui.layout.form" xmlns:microchart="sap.suite.ui.microchart" xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1" xmlns:cust="fhemui5.controls" controllerName="fhemui5.controller.Detail">
+	<semantic:DetailPage id="page" navButtonPress="onNavBack" showNavButton="{device>/system/phone}" title="{GroupDescription}" busy="{detailView>/busy}" busyIndicatorDelay="{detailView>/delay}">
 		<PullToRefresh id="pullToRefresh" refresh="handlePullToRefresh"/>
 		<semantic:content>
 			<l:HorizontalLayout id="TileContainer" allowWrapping="true" visible="{detailView>/StateTileContainerVisibility}">
@@ -12,15 +9,12 @@
 			</l:HorizontalLayout>
 			<IconTabBar id="iconTabBar" class="sapUiResponsiveContentPadding" visible="{detailView>/IconTabBarVisibility}">
 				<items>
-					<IconTabFilter id="IconTabBarShutters" tooltip="{GroupDescription}" text="" icon="sap-icon://group-2"
-						visible="{detailView>/ShuttersVisibility}">
-						<Table id="TabShutters" items="{path: 'Shutters>/results', sorter: {path: 'ShutterSeq', descending: false }}"
-							visible="{detailView>/ShuttersVisibility}">
+					<IconTabFilter id="IconTabBarShutters" tooltip="{GroupDescription}" text="" icon="sap-icon://group-2" visible="{detailView>/ShuttersVisibility}">
+						<Table id="TabShutters" items="{path: 'Shutters>/results', sorter: {path: 'ShutterSeq', descending: false }}" visible="{detailView>/ShuttersVisibility}">
 							<items>
 								<ColumnListItem counter="0" id="ColListItemShutters" vAlign="Top">
 									<cells>
-										<form:SimpleForm id="FormShutters" maxContainerCols="2" editable="true" minWidth="1024" layout="ResponsiveGridLayout" labelSpanL="3"
-											labelSpanM="3" emptySpanL="1" emptySpanM="1" columnsL="1" columnsM="1">
+										<form:SimpleForm id="FormShutters" maxContainerCols="2" editable="true" minWidth="1024" layout="ResponsiveGridLayout" labelSpanL="3" labelSpanM="3" emptySpanL="1" emptySpanM="1" columnsL="1" columnsM="1">
 											<form:content>
 												<Label id="LabelShuttersButtons" text="{Shutters>ShutterDescription}"/>
 												<SegmentedButton id="ButtonShutters" select="onShutterSelected" app:DeviceID="{Shutters>ShutterID}" width="100%">
@@ -32,8 +26,7 @@
 													</items>
 												</SegmentedButton>
 												<Label id="LabelShuttersLevels" text=""/>
-												<microchart:BulletMicroChart id="ChartShuttersLevels" size="S" scale="%" showValueMarker="false" minValue="0" maxValue="100"
-													showTargetValue="false" showActualValue="true">
+												<microchart:BulletMicroChart id="ChartShuttersLevels" size="S" scale="%" showValueMarker="false" minValue="0" maxValue="100" showTargetValue="false" showActualValue="true">
 													<microchart:actual>
 														<microchart:BulletMicroChartData value="{Shutters>ShutterLevel}" color="Good"/>
 													</microchart:actual>
@@ -55,19 +48,15 @@
 							</columns>
 						</Table>
 					</IconTabFilter>
-					<IconTabFilter id="IconTabBarSwitches" tooltip="{GroupDescription}" text="" icon="sap-icon://lightbulb"
-						visible="{detailView>/SwitchesVisibility}">
-						<Table id="TabSwitches" items="{path: 'Switches>/results', sorter: {path: 'SwitchSeq', descending: false }}"
-							visible="{detailView>/SwitchesVisibility}">
+					<IconTabFilter id="IconTabBarSwitches" tooltip="{GroupDescription}" text="" icon="sap-icon://lightbulb" visible="{detailView>/SwitchesVisibility}">
+						<Table id="TabSwitches" items="{path: 'Switches>/results', sorter: {path: 'SwitchSeq', descending: false }}" visible="{detailView>/SwitchesVisibility}">
 							<items>
 								<ColumnListItem counter="0" id="ColListItemSwitches" vAlign="Top">
 									<cells>
-										<form:SimpleForm id="FormSwitches" maxContainerCols="2" editable="true" minWidth="1024" layout="ResponsiveGridLayout" labelSpanL="3"
-											labelSpanM="3" emptySpanL="1" emptySpanM="1" columnsL="1" columnsM="1">
+										<form:SimpleForm id="FormSwitches" maxContainerCols="2" editable="true" minWidth="1024" layout="ResponsiveGridLayout" labelSpanL="3" labelSpanM="3" emptySpanL="1" emptySpanM="1" columnsL="1" columnsM="1">
 											<form:content>
 												<Label id="LabelSwitches" text="{Switches>SwitchDescription}"/>
-												<Switch id="Switch01" change="onSwitchPressed" customTextOff="Aus" customTextOn="An" type="AcceptReject" state="{Switches>SwitchState}"
-													app:DeviceID="{Switches>SwitchID}"/>
+												<Switch id="Switch01" change="onSwitchPressed" customTextOff="Aus" customTextOn="An" type="AcceptReject" state="{Switches>SwitchState}" app:DeviceID="{Switches>SwitchID}"/>
 											</form:content>
 										</form:SimpleForm>
 									</cells>
@@ -78,15 +67,12 @@
 							</columns>
 						</Table>
 					</IconTabFilter>
-					<IconTabFilter id="IconTabBarSunblinds" tooltip="{GroupDescription}" text="" icon="sap-icon://retail-store"
-						visible="{detailView>/SunblindsVisibility}">
-						<Table id="TabSunblinds" items="{path: 'Sunblinds>/results', sorter: {path: 'SunblindSeq', descending: false }}"
-							visible="{detailView>/SunblindsVisibility}">
+					<IconTabFilter id="IconTabBarSunblinds" tooltip="{GroupDescription}" text="" icon="sap-icon://retail-store" visible="{detailView>/SunblindsVisibility}">
+						<Table id="TabSunblinds" items="{path: 'Sunblinds>/results', sorter: {path: 'SunblindSeq', descending: false }}" visible="{detailView>/SunblindsVisibility}">
 							<items>
 								<ColumnListItem counter="0" id="ColListItemSunblinds" vAlign="Top">
 									<cells>
-										<form:SimpleForm id="FormSunblinds" maxContainerCols="2" editable="true" minWidth="1024" layout="ResponsiveGridLayout" labelSpanL="3"
-											labelSpanM="3" emptySpanL="1" emptySpanM="1" columnsL="1" columnsM="1">
+										<form:SimpleForm id="FormSunblinds" maxContainerCols="2" editable="true" minWidth="1024" layout="ResponsiveGridLayout" labelSpanL="3" labelSpanM="3" emptySpanL="1" emptySpanM="1" columnsL="1" columnsM="1">
 											<form:content>
 												<Label id="LabelSunblindsButtons" text="{Sunblinds>SunblindDescription}"/>
 												<SegmentedButton id="ButtonSunblinds" select="onSunblindsSelected" app:DeviceID="{Sunblinds>SunblindID}">
@@ -97,8 +83,7 @@
 													</items>
 												</SegmentedButton>
 												<Label id="LabelSunblindsLevels" text=""/>
-												<microchart:BulletMicroChart id="ChartSunblindsLevels" size="S" scale="%" showValueMarker="false" minValue="0" maxValue="100"
-													showTargetValue="false" showActualValue="true">
+												<microchart:BulletMicroChart id="ChartSunblindsLevels" size="S" scale="%" showValueMarker="false" minValue="0" maxValue="100" showTargetValue="false" showActualValue="true">
 													<microchart:actual>
 														<microchart:BulletMicroChartData value="{Sunblinds>SunblindLevel}" color="Good"/>
 													</microchart:actual>
@@ -120,10 +105,8 @@
 							</columns>
 						</Table>
 					</IconTabFilter>
-					<IconTabFilter id="IconTabBarRadThermos" tooltip="{GroupDescription}" text="" icon="sap-icon://heating-cooling"
-						visible="{detailView>/RadThermosVisibility}">
-						<Table id="TabRadThermos" items="{path: 'RadThermos>/results', sorter: {path: 'RadThermoSeq', descending: false }}"
-							visible="{detailView>/RadThermosVisibility}">
+					<IconTabFilter id="IconTabBarRadThermos" tooltip="{GroupDescription}" text="" icon="sap-icon://heating-cooling" visible="{detailView>/RadThermosVisibility}">
+						<Table id="TabRadThermos" items="{path: 'RadThermos>/results', sorter: {path: 'RadThermoSeq', descending: false }}" visible="{detailView>/RadThermosVisibility}">
 							<items>
 								<ColumnListItem counter="0" id="ColListItemRadThermos" vAlign="Top">
 									<cells>
@@ -134,22 +117,18 @@
 														<Label id="LabelRadThermosButtons" text="{RadThermos>RadThermoDescription}"/>
 													</l:BlockLayoutCell>
 													<l:BlockLayoutCell>
-														<microchart:HarveyBallMicroChart size="S" total="30" totalScale="°C" showTotal="false" showFractions="true" showfractionScale="true"
-															colorPalette="{RadThermos>RadThermoColorPalette}">
+														<microchart:HarveyBallMicroChart size="S" total="30" totalScale="°C" showTotal="false" showFractions="true" showfractionScale="true" colorPalette="{RadThermos>RadThermoColorPalette}">
 															<microchart:items>
-																<microchart:HarveyBallMicroChartItem fraction="{RadThermos>RadThermoReqTemp}" fractionScale="°C"/>
+																<microchart:HarveyBallMicroChartItem fraction="{RadThermos>RadThermoFraction}" fractionScale="°C"/>
 															</microchart:items>
 														</microchart:HarveyBallMicroChart>
 													</l:BlockLayoutCell>
 												</l:BlockLayoutRow>
 												<l:BlockLayoutRow>
 													<l:BlockLayoutCell>
-														<cust:ValuePicker id="ValuePickerRadThermos" change="onRadThermoSelected" placeholder="Temperatur eingeben" fromStep="0" toStep="30"
-															pickerTitle="Temperatur" app:DeviceID="{RadThermos>RadThermoID}" app:Action="valuePicker" width="30%"/>
-														<Button id="ButtonRadThermosBoost" icon="sap-icon://goal" enabled="true" press="onRadThermoSelected" app:Action="boost"
-															app:DeviceID="{RadThermos>RadThermoID}" width="30%"/>
-														<Button id="ButtonRadThermosOff" icon="sap-icon://log" enabled="true" press="onRadThermoSelected" app:Action="off"
-															app:DeviceID="{RadThermos>RadThermoID}" width="30%"/>
+														<cust:ValuePicker id="ValuePickerRadThermos" change="onRadThermoSelected" placeholder="Temperatur eingeben" fromStep="0" toStep="30" pickerTitle="Temperatur" app:DeviceID="{RadThermos>RadThermoID}" app:Action="valuePicker" width="30%"/>
+														<Button id="ButtonRadThermosBoost" icon="sap-icon://goal" enabled="true" press="onRadThermoSelected" app:Action="boost" app:DeviceID="{RadThermos>RadThermoID}" width="30%"/>
+														<Button id="ButtonRadThermosOff" icon="sap-icon://log" enabled="true" press="onRadThermoSelected" app:Action="off" app:DeviceID="{RadThermos>RadThermoID}" width="30%"/>
 													</l:BlockLayoutCell>
 												</l:BlockLayoutRow>
 											</l:BlockLayout>
@@ -166,7 +145,7 @@
 			</IconTabBar>
 		</semantic:content>
 		<semantic:customFooterContent>
-			<ToggleButton id="ButtonAutoRefresh" text="Auto Refresh" enabled="true" pressed="false" press="onPressAutoRefresh"/>
+			<ToggleButton id="ButtonAutoRefresh" text="Auto Refresh" enabled="true" pressed="false" press="onPressAutoRefresh" icon="sap-icon://synchronize"/>
 		</semantic:customFooterContent>
 	</semantic:DetailPage>
 </mvc:View>

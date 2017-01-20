@@ -1,8 +1,9 @@
 sap.ui.define([
 	"fhemui5/controller/BaseController",
 	"sap/ui/core/routing/History",
-	"fhemui5/util/GlobalUtils"
-], function(BaseController, History, GlobalUtils) {
+	"fhemui5/util/GlobalUtils",
+	"fhemui5/util/FhemUtils"
+], function(BaseController, History, GlobalUtils, FhemUtils) {
 	"use strict";
 
 	return BaseController.extend("fhemui5.controller.ChartsPowerMeter", {
@@ -17,7 +18,6 @@ sap.ui.define([
 
 			// Retrieve navigation context
 			this.getRouter().getRoute("chartsPowerMeter").attachPatternMatched(this._onObjectMatched, this);
-
 			this.buildChart();
 		},
 
@@ -139,203 +139,218 @@ sap.ui.define([
 		},
 
 		getChartData: function() {
+			var oDate = new Date();
+			var iYearCurrent = oDate.getFullYear();
+			var iYearPast = iYearCurrent - 5;
+			var sDblog = "eg.hw.sz.haushalt.dblog1";
+			var sDevice = "eg.hw.sz.haushalt.dum1";
+			var sTimestampFrom = iYearPast + "-01-01_00:00:00";
+			var sTimestampTo = iYearCurrent + "-12-31_00:00:00";
+			var sReading = "Monatsverbrauch";
 
-			var oFhemDblog = {
-				"data": [{
-					"TIMESTAMP": "2015-01-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "317.98",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2015-03-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "305",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2015-02-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "278",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2015-04-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "288",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2015-05-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "326",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2015-06-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "324.59",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2015-07-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "287.41",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2015-08-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "323.30",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2015-09-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "318.76",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2015-10-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "353.01",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2015-11-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "367.49",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2015-12-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "369.01",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2016-01-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "317.98",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2016-03-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "305",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2016-02-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "278",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2016-04-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "288",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2016-05-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "326",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2016-06-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "324.59",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2016-07-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "287.41",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2016-08-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "323.30",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2016-09-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "318.76",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2016-10-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "353.01",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2016-11-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "367.49",
-					"UNIT": ""
-				}, {
-					"TIMESTAMP": "2016-12-28 00:00:00",
-					"DEVICE": "eg.hw.sz.haushalt.dum1",
-					"TYPE": "SMLUSB",
-					"EVENT": "Monatsverbrauch",
-					"READING": "Monatsverbrauch",
-					"VALUE": "369.01",
-					"UNIT": ""
-				}],
-				"totalCount": 12
-			};
+			//Read DBLOG from FHEM
+			var oFhemDblog = FhemUtils.readDblogData(this, sDblog, sDevice, sTimestampFrom, sTimestampTo, sReading);
+
+			// Read Dummy data in case no data has been retrieved from FHEM
+			if (!oFhemDblog) {
+				oFhemDblog = {
+					"data": [{
+						"TIMESTAMP": "2015-01-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2015-03-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2015-02-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2015-04-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2015-05-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "326",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2015-06-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "324.59",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2015-07-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "287.41",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2015-08-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "323.30",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2015-09-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "318.76",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2015-10-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "353.01",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2015-11-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "367.49",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2015-12-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "369.01",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2016-01-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2016-03-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2016-02-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2016-04-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2016-05-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "326",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2016-06-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "324.59",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2016-07-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "287.41",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2016-08-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "323.30",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2016-09-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "318.76",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2016-10-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "353.01",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2016-11-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "367.49",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2016-12-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "369.01",
+						"UNIT": ""
+					}],
+					"totalCount": 12
+				};
+
+			}
 
 			//Sort Data by Timestamp 
 			oFhemDblog.data.sort(GlobalUtils.compareTimestamp);

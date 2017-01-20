@@ -8,9 +8,11 @@ sap.ui.define([
 	"sap/ui/core/IntervalTrigger",
 	"fhemui5/localService/mockserver",
 	"fhemui5/util/GlobalUtils",
+	"fhemui5/util/FhemUtils",
 	"sap/m/MessageBox",
 	"sap/ui/Device"
-], function(BaseController, JSONModel, formatter, MessageToast, History, IntervalTrigger, mockserver, GlobalUtils, MessageBox, Device) {
+], function(BaseController, JSONModel, formatter, MessageToast, History, IntervalTrigger, mockserver, GlobalUtils, FhemUtils, MessageBox,
+	Device) {
 	"use strict";
 	return BaseController.extend("fhemui5.controller.Detail", {
 		formatter: formatter,
@@ -573,11 +575,13 @@ sap.ui.define([
 			if (oDeviceSet instanceof Array) {
 				oDeviceSet.forEach(function(oValue, i) {
 					//Retrieve Reading Values
-					var sReqTemp = parseFloat(othis.getReadingValue(oValue, "desired-temp"));
-					var sColorPalette;
+					var sReqTemp = othis.getReadingValue(oValue, "desired-temp");
+
+					//Set Fraction
+					var sFraction = GlobalUtils.setFraction4RadThermo(sReqTemp);
 
 					// Set Color Palette
-					sColorPalette = GlobalUtils.setColorPalette4RadThermo(sReqTemp);
+					var sColorPalette = GlobalUtils.setColorPalette4RadThermo(sReqTemp);
 
 					// Set Model data
 					oRadThermosList.results[i] = {
@@ -585,6 +589,7 @@ sap.ui.define([
 						RadThermoDescription: oValue.DeviceDescription,
 						RadThermoSeq: oValue.DeviceSeq,
 						RadThermoReqTemp: sReqTemp,
+						RadThermoFraction: sFraction,
 						RadThermoColorPalette: sColorPalette
 					};
 				});
@@ -640,29 +645,16 @@ sap.ui.define([
 				return;
 			}
 
-			// TODO: Remove coding if not needed 
-			// // Check Service URL
-			// if (GlobalUtils.checkServiceURL(this)) {
-			// 	MessageBox.error("Service URL is not valid");
-			// } else {
+			//Get data from Fhem via JSON List
+			if (oDeviceSet instanceof Array) {
+				oDeviceSet.forEach(function(oValue, i) {
+					oThis.refreshReadings(sGroupID, oValue.DeviceID, oValue.ReadingSet.results);
+				});
+			}
 
-			//********
-			// Get data from Fhem via JSON List
-			// if (oDeviceSet instanceof Array) {
-			// 	oDeviceSet.forEach(function(oValue, i) {
-			// 		oThis.refreshReadings(sGroupID, oValue.DeviceID, oValue.ReadingSet.results);
-			// 	});
-			// }
-
-			//}
-
-			// TODO: Remove Coding
 			// Build Models
 			oThis.buildModels(sGroupID);
 
-			// TODO: Remove Coding
-			// Update Binding
-			//oThis.updateBinding();
 		},
 
 		refreshReadings: function(sGroupID, sDeviceID, oReadingSet) {
@@ -681,91 +673,7 @@ sap.ui.define([
 			// We accpect only one Device ID for ReadingsSet
 			// Read all readings per Device in order to limit HTTP requests
 			// For aync Mode
-			this.readFhemData(sGroupID, sDeviceID, oReadingSet);
-
-			// TODO: Remove Coding
-			// // For sync mode 
-			// var oModelFhemData = this.readFhemData(sDeviceID);
-
-			// if (!oModelFhemData) {
-			// 	return;
-			// }
-			// if (oReadingSet instanceof Array) {
-			// 	oReadingSet.forEach(function(oValue, i) {
-			// 		// Get ReadingsValue from FHEM Model
-			// 		var sReadingValue = oModelFhemData.getProperty("/Results/0/Readings/" + oValue.ReadingID + "/Value");
-			// 		// Keep old reading value
-			// 		oValue.ReadingValueOld = oValue.ReadingValue;
-			// 		// Set new reading value
-			// 		oValue.ReadingValue = sReadingValue;
-			// 		if (!oValue.ReadingValue) {
-			// 			oValue.ReadingValue = "0";
-			// 		}
-			// 	});
-			// }
-		},
-
-		readFhemData: function(sGroupID, sDeviceID, oReadingSet) {
-			// Check input
-			if (!sGroupID) {
-				return;
-			}
-			// Check input
-			if (!sDeviceID) {
-				return;
-			}
-			var oThis = this;
-			var oModel = this.getModel("FhemService");
-			var sPrefix = "?cmd=jsonlist2%20[DeviceID]&XHR=1";
-			var sPlaceholder = "[DeviceID]";
-			var sFhemcmd = oModel.sServiceUrl + sPrefix;
-			sFhemcmd = sFhemcmd.replace(sPlaceholder, sDeviceID);
-
-			var oModelFhemData = new sap.ui.model.json.JSONModel();
-
-			// TODO: Remove Coding
-			// For synchronious mode
-			// oModelFhemData.loadData(sFhemcmd, undefined, false);
-			// return oModelFhemData;
-
-			// Read FHEM data asynchronous
-			oModelFhemData.loadData(sFhemcmd, undefined, true);
-
-			// Handle Request Complete
-			oModelFhemData.attachRequestCompleted(function(oData) {
-
-				// Check if we received the data sucessfully
-				if (!oModelFhemData.getProperty("/Results/")) {
-					return;
-				}
-
-				// Map Fhem readings to FHEM Model
-				if (oReadingSet instanceof Array) {
-					oReadingSet.forEach(function(oValue, i) {
-						// Get ReadingsValue from FHEM Model
-						var sReadingValue = oModelFhemData.getProperty("/Results/0/Readings/" + oValue.ReadingID + "/Value");
-						// Keep old reading value
-						oValue.ReadingValueOld = oValue.ReadingValue;
-						// Set new reading value
-						oValue.ReadingValue = sReadingValue;
-						if (!oValue.ReadingValue) {
-							oValue.ReadingValue = "0";
-						}
-					});
-				}
-				// Build Models
-				oThis.buildModels(sGroupID);
-
-				// TODO: Remove Coding
-				// Update Binding
-				//oThis.updateBinding();
-
-			});
-
-			// Error: Service URL is not valid
-			oModelFhemData.attachRequestFailed(function(oData) {
-				MessageBox.error("Service URL is not valid: " + sFhemcmd);
-			});
+			FhemUtils.readFhemData(this, sGroupID, sDeviceID, oReadingSet);
 		},
 
 		updateBinding: function() {
@@ -901,21 +809,24 @@ sap.ui.define([
 
 			switch (sAction) {
 				case "valuePicker":
-					sReqTemp = parseFloat(evt.getParameter("value"));
+					sReqTemp = evt.getParameter("value");
 					aRadThermos[i].RadThermoReqTemp = sReqTemp;
 					break;
 
 				case "boost":
-					sReqTemp = 30;
+					sReqTemp = "on";
 					aRadThermos[i].RadThermoReqTemp = sReqTemp;
 					break;
 
 				case "off":
-					sReqTemp = 0;
+					sReqTemp = "off";
 					aRadThermos[i].RadThermoReqTemp = sReqTemp;
 					break;
 			}
-
+			
+			//Set Fraction
+			aRadThermos[i].RadThermoFraction = GlobalUtils.setFraction4RadThermo(aRadThermos[i].RadThermoReqTemp);
+			
 			// Set Color Palette
 			aRadThermos[i].RadThermoColorPalette = GlobalUtils.setColorPalette4RadThermo(aRadThermos[i].RadThermoReqTemp);
 
