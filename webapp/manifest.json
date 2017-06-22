@@ -120,7 +120,7 @@
 				"target": ["master", "object"]
 			}, {
 				"name": "chartsPowerMeter",
-				"pattern": "{DeviceID}/{ReadingID}",
+				"pattern": "{DeviceID}/{ReadingID}/{TileHeader}/{TileSubHeader}",
 				"titleTarget": "",
 				"greedy": false,
 				"target": ["object", "chartsPowerMeter"]

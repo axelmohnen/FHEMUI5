@@ -2,8 +2,9 @@ sap.ui.define([
 	"fhemui5/controller/BaseController",
 	"sap/ui/core/routing/History",
 	"fhemui5/util/GlobalUtils",
-	"fhemui5/util/FhemUtils"
-], function(BaseController, History, GlobalUtils, FhemUtils) {
+	"fhemui5/util/FhemUtils",
+	"sap/ui/model/json/JSONModel"
+], function(BaseController, History, GlobalUtils, FhemUtils, JSONModel) {
 	"use strict";
 
 	return BaseController.extend("fhemui5.controller.ChartsPowerMeter", {
@@ -15,10 +16,37 @@ sap.ui.define([
 		 */
 
 		onInit: function() {
+			var oDate = new Date();
+			var oDateFrom = new Date();
+
+			// Substract current date minus 1 year
+			oDateFrom.setFullYear(oDateFrom.getFullYear() - 1);
+
+			// Set current year
+			this.iYearCurrent = oDate.getFullYear();
+
+			// Set time frame to read (in years)
+			this.iTimeFrame = 5;
+
+			// Build View Model
+			var oViewModel = new JSONModel({
+				ViewTitle: "",
+				DRSChartConsMonthPeriodFrom: new Date(oDateFrom.getFullYear(), oDateFrom.getMonth(), 1),
+				DRSChartConsMonthPeriodTo: new Date(oDate.getFullYear(), oDate.getMonth(), 1),
+				TabConsMonthYear1: oDateFrom.getFullYear().toString(),
+				TabConsMonthYear2: oDate.getFullYear().toString(),
+				ChartCurrConsDate: GlobalUtils.convertDateToISOStringCET(oDate).slice(0, 10) //Current date in YYYY-MM-dd
+			});
+			// Set View Model
+			this.setModel(oViewModel, "ViewModel");
 
 			// Retrieve navigation context
 			this.getRouter().getRoute("chartsPowerMeter").attachPatternMatched(this._onObjectMatched, this);
-			this.buildChart();
+
+			//  Create a JSON Model for consumption per month table view
+			var oConsMonthTabModel = new sap.ui.model.json.JSONModel();
+			this.setModel(oConsMonthTabModel, "ConsMonthTab");
+
 		},
 
 		/**
@@ -31,9 +59,35 @@ sap.ui.define([
 			// Retrieve key from navigation context 
 			this.sDeviceID = oEvent.getParameter("arguments").DeviceID;
 			this.sReadingID = oEvent.getParameter("arguments").ReadingID;
+			this.sTileHeader = oEvent.getParameter("arguments").TileHeader;
+			this.sTileSubHeader = oEvent.getParameter("arguments").TileSubHeader;
+
+			// Update Title of view model
+			this.getModel("ViewModel").setProperty("/ViewTitle", this.sTileHeader + this.sTileSubHeader);
+
+			// Get Chart data - Consumption per month
+			this.oConsMonthData = this.getConsMonthData(this.sReadingID);
+
+			// Get Chart data - Current consumption
+			this.oCurrConsData = this.getCurrConsData(this.sReadingID);
+
+			// Build Column Chart for monthly consumption
+			this.buildChartConsMonth();
+
+			// Build Table for monthly consumption	
+			this.buildTabConsMonth();
+
+			// Build Line Chart for current consumption
+			this.buildChartCurrCons();
 		},
 
 		onNavBack: function() {
+			//  Get VizFrame by ID		
+			var oVizFrame = this.getView().byId("ChartConsMonth");
+			// Destroy data bindings
+			oVizFrame.destroyDataset();
+			oVizFrame.destroyFeeds();
+
 			var sPreviousHash = History.getInstance().getPreviousHash();
 			if (sPreviousHash !== undefined) {
 				history.go(-1);
@@ -44,10 +98,167 @@ sap.ui.define([
 			}
 		},
 
-		buildChart: function() {
+		buildTabConsMonth: function() {
+			// Get Table data
+			var oTabdata = this.oConsMonthData;
+			var iMonth = 0;
+			var sKey = "";
+			var bDataExists = false;
+			var i, j;
+			var fTotalConsYear = 0.00;
+			var iYear;
+
+			// Check mandatory data 
+			if (!oTabdata) {
+				return;
+			}
+
+			// Get View Model
+			var oViewModel = this.getModel("ViewModel");
+			
+			//Retrieve comparison years 
+			var iYear1 = oViewModel.getProperty("/TabConsMonthYear1");
+			var iYear2 = oViewModel.getProperty("/TabConsMonthYear2");
+
+			// Create data container
+			var oConsMonthData = {
+				"PowerMeter": []
+			};
+
+			for (i = 0; i < 12; i++) {
+				// Build new data record 
+				oConsMonthData.PowerMeter[i] = {
+					"Month": GlobalUtils.getMonthName(i)
+				};
+
+				for (j = 0; j < 2; j++) {
+					// Initialize loop data
+					iYear = 0;
+					sKey = "";
+
+					// Increment Month
+					iMonth = i + 1;
+
+					// Set year to be processed
+					switch (j) {
+						case 0:
+							iYear = iYear1;
+							break;
+						case 1:
+							iYear = iYear2;
+							break;
+					}
+
+					// Build key to be searched (YYYY-MM-01 00:00:00)
+					sKey = iYear + "-" + GlobalUtils.addLeadingZeros(iMonth, 2) + "-" + "01" + " " + "00:00:00";
+					// Execute search
+					var oResult = jQuery.grep(oTabdata.PowerMeter, function(e) {
+						return e.Month === sKey;
+					});
+
+					if (oResult.length) {
+						//Create new property (Year) and set value
+						oConsMonthData.PowerMeter[i][iYear] = oResult[0].Value;
+					}
+					
+					if (j === 1 && oConsMonthData.PowerMeter[i][iYear1] && oConsMonthData.PowerMeter[i][iYear2]){
+						var iDiffPercentage = ((oConsMonthData.PowerMeter[i][iYear1] / 100) - (oConsMonthData.PowerMeter[i][iYear2] / oConsMonthData.PowerMeter[i][iYear1])) * 100;	
+
+						oConsMonthData.PowerMeter[i].diff = iDiffPercentage;
+					}
+				}
+			}
+
+			// Set data to model
+			var oConsMonthTabModel = this.getModel("ConsMonthTab");
+			oConsMonthTabModel.setData(oConsMonthData);
+
+			// Get Table instance 
+			var oTabConsMonth = this.getView().byId("TabConsMonth");
+			// Remove all existing columns in case of refresh
+			oTabConsMonth.removeAllColumns();
+
+			// Build new column handler 
+			var oCol = new sap.m.Column({
+				header: [
+					new sap.m.Label({
+						text: "Monat"
+					})
+				]
+			});
+			// Set column to table
+			oTabConsMonth.addColumn(oCol);
+
+			// Build new Column Item List handler
+			var oColList = new sap.m.ColumnListItem();
+
+			// Add new cell to column item list
+			oColList.addCell(new sap.m.Text({
+				text: "{ConsMonthTab>Month}"
+			}));
+
+			for (i = 0; i < 2; i++) {
+
+				// Initialize loop data
+				bDataExists = false;
+				fTotalConsYear = 0;
+
+				// Set year to be processed
+				switch (i) {
+					case 0:
+						iYear = iYear1;
+						break;
+					case 1:
+						iYear = iYear2;
+						break;
+				}
+
+				// Check if a data exists for given year
+				for (j = 0; j < 12; j++) {
+					if (oConsMonthData.PowerMeter[j][iYear]) {
+						// Data exists -> set flag and leave loop
+						bDataExists = true;
+
+						// Calculate total consumption per year
+						fTotalConsYear += parseFloat(oConsMonthData.PowerMeter[j][iYear]);
+					}
+				}
+
+				// IF no data exists for given -> don't create a column and continue with next year 
+				if (!bDataExists) {
+					continue;
+				}
+
+				// Build new column handler 
+				oCol = new sap.m.Column({
+					header: [
+						new sap.m.Label({
+							text: iYear
+						})
+					],
+					footer: [
+						new sap.m.Label({
+							text: fTotalConsYear
+						})
+					]
+				});
+				// Set column to table
+				oTabConsMonth.addColumn(oCol);
+
+				// Add new cell to column item list
+				oColList.addCell(new sap.m.Text({
+					text: "{ConsMonthTab>" + iYear + "}"
+				}));
+			}
+
+			oTabConsMonth.bindAggregation("items", "ConsMonthTab>/PowerMeter", oColList);
+
+		},
+
+		buildChartConsMonth: function() {
 
 			// Get Chart data
-			var oChartdata = this.getChartData();
+			var oChartdata = this.oConsMonthData;
 
 			// Check mandatory data 
 			if (!oChartdata) {
@@ -55,7 +266,7 @@ sap.ui.define([
 			}
 
 			//  Get VizFrame by ID		
-			var oVizFrame = this.getView().byId("idcolumn");
+			var oVizFrame = this.getView().byId("ChartConsMonth");
 
 			//  Create a JSON Model and set the data
 			var oChartDataModel = new sap.ui.model.json.JSONModel();
@@ -63,14 +274,24 @@ sap.ui.define([
 			oVizFrame.setModel(oChartDataModel);
 
 			// Build Chart DataSet
-			var oChartDataSet = this.buildChartDataSet();
+			var oChartDataSet = this.buildChartConsMonthDataSet();
 			// Set dataset
 			oVizFrame.setDataset(oChartDataSet);
+
+			// Get View Model
+			var oViewModel = this.getModel("ViewModel");
+			// Get Period From and Period To 
+			var oPeriodFrom = oViewModel.getProperty("/DRSChartConsMonthPeriodFrom");
+			var oPeriodTo = oViewModel.getProperty("/DRSChartConsMonthPeriodTo");
 
 			// Set Viz properties
 			oVizFrame.setVizProperties({
 				plotArea: {
-					colorPalette: d3.scale.category20().range()
+					colorPalette: d3.scale.category20().range(),
+					window: {
+						start: oPeriodFrom,
+						end: oPeriodTo
+					}
 				},
 				dataLabel: {
 					visible: true
@@ -81,44 +302,49 @@ sap.ui.define([
 						text: "Verbrauch in kWh"
 					}
 				},
-				categoryAxis: {
+				timeAxis: {
 					title: {
 						visible: true,
 						text: "Monat"
-					}
+					},
+					interval: {
+						unit: ""
+					},
+					levels: ["Month", "year"]
 				},
 				title: {
-					visible: true,
-					text: "Stromzähler - Haushalt"
+					visible: false,
+					text: this.sTileHeader + this.sTileSubHeader
 				}
+
 			});
 
 			// Set Y Axis property
 			var feedValueAxis = new sap.viz.ui5.controls.common.feeds.FeedItem({
 				"uid": "valueAxis",
 				"type": "Measure",
-
-				"values": "Verbrauch in kWh"
+				"values": ["Verbrauch in kWh"]
 			});
 
 			// Set X Axis property
-			var feedCategoryAxis = new sap.viz.ui5.controls.common.feeds.FeedItem({
-				"uid": "categoryAxis",
+			var feedTimeAxis = new sap.viz.ui5.controls.common.feeds.FeedItem({
+				"uid": "timeAxis",
 				"type": "Dimension",
 				"values": ["Month"]
 			});
 
 			// Set Feed data
 			oVizFrame.addFeed(feedValueAxis);
-			oVizFrame.addFeed(feedCategoryAxis);
+			oVizFrame.addFeed(feedTimeAxis);
 
 		},
 
-		buildChartDataSet: function() {
+		buildChartConsMonthDataSet: function() {
 			// A Dataset defines how the model data is mapped to the chart
 			var oDataSet = new sap.viz.ui5.data.FlattenedDataset({
 				dimensions: [{
 					name: "Month",
+					dataType: "date",
 					value: "{Month}"
 				}],
 				measures: [{
@@ -138,14 +364,123 @@ sap.ui.define([
 			return oDataSet;
 		},
 
-		getChartData: function() {
-			var oDate = new Date();
-			var iYearCurrent = oDate.getFullYear();
-			var iYearPast = iYearCurrent - 5;
-			var sDblog = "eg.hw.sz.haushalt.dblog1";
-			var sDevice = "eg.hw.sz.haushalt.dum1";
+		buildChartCurrCons: function() {
+
+			// Get Chart data
+			var oChartdata = this.oCurrConsData;
+
+			// Check mandatory data 
+			if (!oChartdata) {
+				return;
+			}
+
+			//  Get VizFrame by ID		
+			var oVizFrame = this.getView().byId("ChartCurrCons");
+			oVizFrame.destroyDataset();
+			oVizFrame.destroyFeeds();
+
+			// Get View Model
+			var oViewModel = this.getModel("ViewModel");
+			var sCurrConsDate = oViewModel.getProperty("/ChartCurrConsDate");
+			var sDateFrom = GlobalUtils.convertDateTime2DateTimeString(sCurrConsDate, "00:00:00");
+			var sDateTo = GlobalUtils.convertDateTime2DateTimeString(sCurrConsDate, "23:59:59");
+
+			//  Create a JSON Model and set the data
+			var oChartDataModel = new sap.ui.model.json.JSONModel();
+			oChartDataModel.setData(oChartdata);
+			oVizFrame.setModel(oChartDataModel);
+
+			// Build Chart DataSet
+			var oChartDataSet = this.buildChartCurrConsDataSet();
+			// Set dataset
+			oVizFrame.setDataset(oChartDataSet);
+
+			// Set Viz properties
+			oVizFrame.setVizProperties({
+				plotArea: {
+					colorPalette: d3.scale.category20().range(),
+					window: {
+						start: sDateFrom,
+						end: sDateTo
+					}
+				},
+				dataLabel: {
+					visible: true
+				},
+				valueAxis: {
+					title: {
+						visible: true,
+						text: "Momentanverbrauch in W"
+					}
+				},
+				timeAxis: {
+					title: {
+						visible: true,
+						text: "Uhrzeit"
+					},
+					interval: {
+						unit: ""
+					},
+					levels: ["Minute", "hour", "day", "year"]
+				},
+				title: {
+					visible: false,
+					text: this.sTileHeader + this.sTileSubHeader
+				}
+			});
+
+			// Set Y Axis property
+			var feedValueAxis = new sap.viz.ui5.controls.common.feeds.FeedItem({
+				"uid": "valueAxis",
+				"type": "Measure",
+				"values": ["Momentanverbrauch in W"]
+			});
+
+			// Set X Axis property
+			var feedTimeAxis = new sap.viz.ui5.controls.common.feeds.FeedItem({
+				//"uid": "categoryAxis",
+				"uid": "timeAxis",
+				"type": "Dimension",
+				"values": ["Uhrzeit"]
+			});
+
+			// Set Feed data
+			oVizFrame.addFeed(feedValueAxis);
+			oVizFrame.addFeed(feedTimeAxis);
+
+		},
+
+		buildChartCurrConsDataSet: function() {
+			// A Dataset defines how the model data is mapped to the chart
+			var oDataSet = new sap.viz.ui5.data.FlattenedDataset({
+				dimensions: [{
+					name: "Uhrzeit",
+					dataType: "date",
+					value: "{Uhrzeit}"
+				}],
+				measures: [{
+					name: "Momentanverbrauch in W",
+					value: "{Value}"
+				}],
+				data: {
+					path: "/PowerMeter"
+				}
+			});
+
+			// Leave if we couldn't instanciate the dataset
+			if (!oDataSet) {
+				return;
+			}
+
+			return oDataSet;
+		},
+
+		getConsMonthData: function(sReadingID) {
+			var iYearPast = this.iYearCurrent - this.iTimeFrame;
+			var sDblog = sReadingID + ".dblog1";
+			var sDevice = sReadingID + ".dum1";
 			var sTimestampFrom = iYearPast + "-01-01_00:00:00";
-			var sTimestampTo = iYearCurrent + "-12-31_00:00:00";
+			var sTimestampTo = this.iYearCurrent + "-12-31_00:00:00";
 			var sReading = "Monatsverbrauch";
 
 			//Read DBLOG from FHEM
@@ -346,6 +681,46 @@ sap.ui.define([
 						"READING": "Monatsverbrauch",
 						"VALUE": "369.01",
 						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "444.01",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-02-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "444.01",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-03-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "150.99",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-04-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "111.01",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-05-28 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt.dum1",
+						"TYPE": "SMLUSB",
+						"EVENT": "Monatsverbrauch",
+						"READING": "Monatsverbrauch",
+						"VALUE": "90.01",
+						"UNIT": ""
 					}],
 					"totalCount": 12
 				};
@@ -355,23 +730,679 @@ sap.ui.define([
 			//Sort Data by Timestamp 
 			oFhemDblog.data.sort(GlobalUtils.compareTimestamp);
 
-			var oChartData = {
+			var oConsMonthData = {
+				"PowerMeter": []
+			};
+
+			var iDataLen = oFhemDblog.data.length;
+			for (var i = 0; i < iDataLen; i++) {
+				// Convert Timestamp into timestamp with first day of month (YYYY-MM-01 00:00:00)
+				var oTimestampFormated = GlobalUtils.convertTimestamp(oFhemDblog.data[i].TIMESTAMP);
+
+				// Build new data record 
+				oConsMonthData.PowerMeter[i] = {
+					"Month": oTimestampFormated.timestampFirstDayMonth,
+					"Value": oFhemDblog.data[i].VALUE
+				};
+			}
+			return oConsMonthData;
+
+		},
+
+		getCurrConsData: function(sReadingID) {
+			var iYearPast = this.iYearCurrent - this.iTimeFrame;
+			var sDblog = sReadingID + ".dblog1";
+			var sDevice = sReadingID;
+			var sTimestampFrom = iYearPast + "-01-01_00:00:00";
+			var sTimestampTo = this.iYearCurrent + "-12-31_00:00:00";
+			var sReading = "Momentanverbrauch";
+
+			//Read DBLOG from FHEM
+			var oFhemDblog = FhemUtils.readDblogData(this, sDblog, sDevice, sTimestampFrom, sTimestampTo, sReading);
+
+			// Read Dummy data in case no data has been retrieved from FHEM
+			if (!oFhemDblog) {
+				oFhemDblog = {
+					"data": [{
+
+						"TIMESTAMP": "2017-01-01 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 01:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 02:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 03:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 04:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 05:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 06:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 07:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 08:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 09:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 10:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 11:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 12:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 13:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 14:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 15:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 16:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 17:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 18:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 19:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 20:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 21:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 22:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-01 23:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 01:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 02:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 03:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 04:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 05:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 06:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 07:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 08:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 09:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 10:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 11:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 12:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 13:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 14:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 15:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 16:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 17:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 18:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 19:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 20:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 21:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 22:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-02 23:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 00:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 01:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 02:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 03:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 04:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 05:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 06:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 07:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 08:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 09:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 10:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 11:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 12:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 13:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 14:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 15:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 16:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 17:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 18:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 19:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 20:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "317.98",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 21:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "305",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 22:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "278",
+						"UNIT": ""
+					}, {
+						"TIMESTAMP": "2017-01-03 23:00:00",
+						"DEVICE": "eg.hw.sz.haushalt",
+						"TYPE": "SMLUSB",
+						"EVENT": "Momentanverbrauch",
+						"READING": "Momentanverbrauch",
+						"VALUE": "288",
+						"UNIT": ""
+					}],
+					"totalCount": 72
+				};
+
+			}
+
+			//Sort Data by Timestamp 
+			oFhemDblog.data.sort(GlobalUtils.compareTimestamp);
+
+			var oCurrConsData = {
 				"PowerMeter": []
 			};
 
 			var iDataLen = oFhemDblog.data.length;
 			for (var i = 0; i < iDataLen; i++) {
 				// Convert Timestamp into month/year (MM.YYYY)
-				var oTimestampFormated = GlobalUtils.convertTimestamp(oFhemDblog.data[i].TIMESTAMP);
+				//var oTimestampFormated = GlobalUtils.convertTimestamp(oFhemDblog.data[i].TIMESTAMP);
 
 				// Build new data record 
-				oChartData.PowerMeter[i] = {
-					"Month": oTimestampFormated.monthYear,
+				oCurrConsData.PowerMeter[i] = {
+					"Uhrzeit": oFhemDblog.data[i].TIMESTAMP,
 					"Value": oFhemDblog.data[i].VALUE
 				};
 			}
-			return oChartData;
+			return oCurrConsData;
 
+		},
+
+		handleDRSChartConsMonth: function(evt) {
+			//  Get VizFrame by ID		
+			var oVizFrame = this.getView().byId("ChartConsMonth");
+			// Get new Period-From and Period-To values
+			var oPeriodFrom = evt.getParameter("from");
+			var oPeriodTo = evt.getParameter("to");
+
+			// Set Viz properties
+			var properties = oVizFrame.getVizProperties();
+
+			// Set new Period-From and Period-To value
+			var sStart = GlobalUtils.convertDateTime2DateTimeString(GlobalUtils.convertDateToISOStringCET(oPeriodFrom).slice(0, 10), "00:00:00" );
+			var sEnd = GlobalUtils.convertDateTime2DateTimeString(GlobalUtils.convertDateToISOStringCET(oPeriodTo).slice(0, 10), "00:00:00" );
+			properties.plotArea.window.start = sStart;
+			properties.plotArea.window.end = sEnd;
+
+			// Update VIZ Frame properties
+			oVizFrame.vizUpdate({
+				"properties": properties
+			});
+		},
+
+		onValuePickerTabConsMonthYear1: function(evt) {
+			// Build Table for monthly consumption	
+			this.buildTabConsMonth();
+		},
+
+		onValuePickerTabConsMonthYear2: function(evt) {
+			// Build Table for monthly consumption	
+			this.buildTabConsMonth();
+		},
+
+		onDPChartCurrCons: function(evt) {
+			// Build Line Chart for current consumption
+			this.buildChartCurrCons();
 		}
 
 		/**

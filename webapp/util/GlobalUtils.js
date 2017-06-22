@@ -68,8 +68,47 @@ sap.ui.define([], function() {
 
 			// Build month/year format (MM.YYYY)
 			oResult.monthYear = sTimestamp.substr(5, 2) + "." + sTimestamp.substr(0, 4);
-
+			
+			// Timestamp with first day of month (YYYY-MM-01 00:00:00)
+			var sTimestampFirstDayMonth = sTimestamp;
+			oResult.timestampFirstDayMonth = sTimestampFirstDayMonth.replace( sTimestampFirstDayMonth.substr(8, 2), "01");
 			return oResult;
+		},
+
+		getMonthName: function(iMonthId) {
+			// Build List of Month names
+			var aMonthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni",
+				"Juli", "August", "September", "Oktober", "November", "Dezember"
+			];
+
+			// Return month name for given ID 
+			return aMonthNames[iMonthId];
+		},
+
+		addLeadingZeros: function(iNumber, iSize) {
+			var s = iNumber + "";
+			while (s.length < iSize) {
+				s = "0" + s;
+			}
+			return s;
+		},
+		
+		convertDate2Period: function(oDate) {
+			//Build period format from Date (MM.YYYY)
+			var sPeriod = ("0" + (oDate.getMonth() + 1)).slice(-2) + "." + oDate.getFullYear();
+			return sPeriod;
+		},
+		
+		convertDateTime2DateTimeString: function(sDate, sTime) {
+			//Build DateTimeString (YYYY-MM-dd 00:00:00) from Date (YYY-MM-dd) and Time (00:00:00)
+			var sDateTimeString = sDate + " " + sTime;
+			return sDateTimeString;
+		},
+		
+		convertDateToISOStringCET: function(oDate){
+			//Convert date into ISO Timestamp string converted to CET Timezone UTC+2
+			var iTimezoneOffset = oDate.getTimezoneOffset() * 60000; //CET = UTC+2
+			return new Date(oDate.getTime() - (iTimezoneOffset)).toISOString();
 		}
 
 	};

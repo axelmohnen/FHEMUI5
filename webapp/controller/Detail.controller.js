@@ -310,7 +310,7 @@ sap.ui.define([
 			// Add Detail view on press
 			if (oReadingSet.TileDetailView) {
 				this.oReadingSet = oReadingSet;
-				oTile.attachPress(this.onPressTile, this);
+				oTile.attachPress(oReadingSet, this.onPressTile, this);
 			}
 
 			// Create Tile Content
@@ -752,19 +752,21 @@ sap.ui.define([
 		onShutterSelected: function(evt) {
 			// Get selected device id
 			var sDeviceID = evt.getSource().data("DeviceID");
-			var sKey = evt.getParameter("key");
+			// Get Action Selected
+			var sAction = evt.getSource().data("Action");
 
 			// Fire FHEM Command
-			this.fireFhemCmd(sDeviceID, sKey);
+			this.fireFhemCmd(sDeviceID, sAction);
 		},
 
 		onSunblindsSelected: function(evt) {
 			// Get selected device id
 			var sDeviceID = evt.getSource().data("DeviceID");
-			var sKey = evt.getParameter("key");
+			// Get Action Selected
+			var sAction = evt.getSource().data("Action");
 
 			// Fire FHEM Command
-			this.fireFhemCmd(sDeviceID, sKey);
+			this.fireFhemCmd(sDeviceID, sAction);
 		},
 
 		onSwitchPressed: function(evt) {
@@ -823,10 +825,10 @@ sap.ui.define([
 					aRadThermos[i].RadThermoReqTemp = sReqTemp;
 					break;
 			}
-			
+
 			//Set Fraction
 			aRadThermos[i].RadThermoFraction = GlobalUtils.setFraction4RadThermo(aRadThermos[i].RadThermoReqTemp);
-			
+
 			// Set Color Palette
 			aRadThermos[i].RadThermoColorPalette = GlobalUtils.setColorPalette4RadThermo(aRadThermos[i].RadThermoReqTemp);
 
@@ -877,11 +879,13 @@ sap.ui.define([
 			}
 		},
 
-		onPressTile: function() {
+		onPressTile: function(evt, oData) {
 			var bReplace = !Device.system.phone;
 			this.getRouter().navTo("chartsPowerMeter", {
-				DeviceID: this.oReadingSet.DeviceID,
-				ReadingID: this.oReadingSet.ReadingID
+				DeviceID: oData.DeviceID,
+				ReadingID: oData.ReadingID,
+				TileHeader: oData.TileHeader,
+				TileSubHeader: oData.TileSubHeader
 			}, bReplace);
 		}
 

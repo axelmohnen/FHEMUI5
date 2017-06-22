@@ -20,7 +20,7 @@
         "id": 1973013,
         "runnerId": "webapprunner",
         "displayName": "Run index.html",
-        "lastRunTimeStamp": 1484915085355
+        "lastRunTimeStamp": 1498112918813
       }
     },
     {
@@ -28,9 +28,8 @@
       "previewMode": 1,
       "dataMode": 1,
       "workspace": "withoutWorkspace",
-      "ui5ActiveVersion": null,
-      "ui5VerSource": null,
-      "isDefaultVersion": 0,
+      "ui5ActiveVersion": "1.36.15",
+      "isDefaultVersion": 1,
       "urlParameters": [],
       "hashParameter": "",
       "backendSystem": [],
@@ -38,7 +37,7 @@
         "id": 9111970,
         "runnerId": "webapprunner",
         "displayName": "Run index.html 1",
-        "lastRunTimeStamp": 1483598903528
+        "lastRunTimeStamp": 1495196405375
       }
     },
     {

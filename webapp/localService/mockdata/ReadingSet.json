@@ -140,7 +140,8 @@
 	"TileFooter": "kwh",
 	"TileContentType": "numeric",
 	"NumericContentIcon": "sap-icon://line-charts",
-	"NumericContentSmallSize": true
+	"NumericContentSmallSize": true,
+	"TileDetailView": "ChartPowerMeter"
 }, {
 	"DeviceID": "heater_bad1",
 	"ReadingID": "state",
