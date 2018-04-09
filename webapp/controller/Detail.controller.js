@@ -8,9 +8,11 @@ sap.ui.define([
 	"sap/ui/core/IntervalTrigger",
 	"fhemui5/localService/mockserver",
 	"fhemui5/util/GlobalUtils",
+	"fhemui5/util/FhemUtils",
 	"sap/m/MessageBox",
 	"sap/ui/Device"
-], function(BaseController, JSONModel, formatter, MessageToast, History, IntervalTrigger, mockserver, GlobalUtils, MessageBox, Device) {
+], function(BaseController, JSONModel, formatter, MessageToast, History, IntervalTrigger, mockserver, GlobalUtils, FhemUtils, MessageBox,
+	Device) {
 	"use strict";
 	return BaseController.extend("fhemui5.controller.Detail", {
 		formatter: formatter,
@@ -308,7 +310,7 @@ sap.ui.define([
 			// Add Detail view on press
 			if (oReadingSet.TileDetailView) {
 				this.oReadingSet = oReadingSet;
-				oTile.attachPress(this.onPressTile, this);
+				oTile.attachPress(oReadingSet, this.onPressTile, this);
 			}
 
 			// Create Tile Content
@@ -573,11 +575,13 @@ sap.ui.define([
 			if (oDeviceSet instanceof Array) {
 				oDeviceSet.forEach(function(oValue, i) {
 					//Retrieve Reading Values
-					var sReqTemp = parseFloat(othis.getReadingValue(oValue, "desired-temp"));
-					var sColorPalette;
+					var sReqTemp = othis.getReadingValue(oValue, "desired-temp");
+
+					//Set Fraction
+					var sFraction = GlobalUtils.setFraction4RadThermo(sReqTemp);
 
 					// Set Color Palette
-					sColorPalette = GlobalUtils.setColorPalette4RadThermo(sReqTemp);
+					var sColorPalette = GlobalUtils.setColorPalette4RadThermo(sReqTemp);
 
 					// Set Model data
 					oRadThermosList.results[i] = {
@@ -585,6 +589,7 @@ sap.ui.define([
 						RadThermoDescription: oValue.DeviceDescription,
 						RadThermoSeq: oValue.DeviceSeq,
 						RadThermoReqTemp: sReqTemp,
+						RadThermoFraction: sFraction,
 						RadThermoColorPalette: sColorPalette
 					};
 				});
@@ -640,7 +645,6 @@ sap.ui.define([
 				return;
 			}
 
-
 			// Get data from Fhem via JSON List
 			if (oDeviceSet instanceof Array) {
 				oDeviceSet.forEach(function(oValue, i) {
@@ -669,64 +673,7 @@ sap.ui.define([
 			// We accpect only one Device ID for ReadingsSet
 			// Read all readings per Device in order to limit HTTP requests
 			// For aync Mode
-			this.readFhemData(sGroupID, sDeviceID, oReadingSet);
-
-		},
-
-		readFhemData: function(sGroupID, sDeviceID, oReadingSet) {
-			// Check input
-			if (!sGroupID) {
-				return;
-			}
-			// Check input
-			if (!sDeviceID) {
-				return;
-			}
-			var oThis = this;
-			var oModel = this.getModel("FhemService");
-			//Get config parameters from manifest
-			var oConfig = this.getOwnerComponent().getManifestEntry("/sap.ui5/config");
-			var sPrefix = "?cmd=jsonlist2%20[DeviceID]&XHR=1&fwcsrf=" + oConfig.csrfToken;
-			var sPlaceholder = "[DeviceID]";
-			var sFhemcmd = oModel.sServiceUrl + sPrefix;
-			sFhemcmd = sFhemcmd.replace(sPlaceholder, sDeviceID);
-
-			var oModelFhemData = new sap.ui.model.json.JSONModel();
-
-			// Read FHEM data asynchronous
-			oModelFhemData.loadData(sFhemcmd, undefined, true);
-
-			// Handle Request Complete
-			oModelFhemData.attachRequestCompleted(function(oData) {
-
-				// Check if we received the data sucessfully
-				if (!oModelFhemData.getProperty("/Results/")) {
-					return;
-				}
-
-				// Map Fhem readings to FHEM Model
-				if (oReadingSet instanceof Array) {
-					oReadingSet.forEach(function(oValue, i) {
-						// Get ReadingsValue from FHEM Model
-						var sReadingValue = oModelFhemData.getProperty("/Results/0/Readings/" + oValue.ReadingID + "/Value");
-						// Keep old reading value
-						oValue.ReadingValueOld = oValue.ReadingValue;
-						// Set new reading value
-						oValue.ReadingValue = sReadingValue;
-						if (!oValue.ReadingValue) {
-							oValue.ReadingValue = "0";
-						}
-					});
-				}
-				// Build Models
-				oThis.buildModels(sGroupID);
-
-			});
-
-			// Error: Service URL is not valid
-			oModelFhemData.attachRequestFailed(function(oData) {
-				MessageBox.error("Service URL is not valid: " + sFhemcmd);
-			});
+			FhemUtils.readFhemData(this, sGroupID, sDeviceID, oReadingSet);
 		},
 
 		updateBinding: function() {
@@ -808,19 +755,21 @@ sap.ui.define([
 		onShutterSelected: function(evt) {
 			// Get selected device id
 			var sDeviceID = evt.getSource().data("DeviceID");
-			var sKey = evt.getParameter("key");
+			// Get Action Selected
+			var sAction = evt.getSource().data("Action");
 
 			// Fire FHEM Command
-			this.fireFhemCmd(sDeviceID, sKey);
+			this.fireFhemCmd(sDeviceID, sAction);
 		},
 
 		onSunblindsSelected: function(evt) {
 			// Get selected device id
 			var sDeviceID = evt.getSource().data("DeviceID");
-			var sKey = evt.getParameter("key");
+			// Get Action Selected
+			var sAction = evt.getSource().data("Action");
 
 			// Fire FHEM Command
-			this.fireFhemCmd(sDeviceID, sKey);
+			this.fireFhemCmd(sDeviceID, sAction);
 		},
 
 		onSwitchPressed: function(evt) {
@@ -865,20 +814,23 @@ sap.ui.define([
 
 			switch (sAction) {
 				case "valuePicker":
-					sReqTemp = parseFloat(evt.getParameter("value"));
+					sReqTemp = evt.getParameter("value");
 					aRadThermos[i].RadThermoReqTemp = sReqTemp;
 					break;
 
 				case "boost":
-					sReqTemp = 30;
+					sReqTemp = "on";
 					aRadThermos[i].RadThermoReqTemp = sReqTemp;
 					break;
 
 				case "off":
-					sReqTemp = 0;
+					sReqTemp = "off";
 					aRadThermos[i].RadThermoReqTemp = sReqTemp;
 					break;
 			}
+
+			//Set Fraction
+			aRadThermos[i].RadThermoFraction = GlobalUtils.setFraction4RadThermo(aRadThermos[i].RadThermoReqTemp);
 
 			// Set Color Palette
 			aRadThermos[i].RadThermoColorPalette = GlobalUtils.setColorPalette4RadThermo(aRadThermos[i].RadThermoReqTemp);
@@ -930,11 +882,13 @@ sap.ui.define([
 			}
 		},
 
-		onPressTile: function() {
+		onPressTile: function(evt, oData) {
 			var bReplace = !Device.system.phone;
 			this.getRouter().navTo("chartsPowerMeter", {
-				DeviceID: this.oReadingSet.DeviceID,
-				ReadingID: this.oReadingSet.ReadingID
+				DeviceID: oData.DeviceID,
+				ReadingID: oData.ReadingID,
+				TileHeader: oData.TileHeader,
+				TileSubHeader: oData.TileSubHeader
 			}, bReplace);
 		}
 

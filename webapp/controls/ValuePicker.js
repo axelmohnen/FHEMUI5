@@ -109,7 +109,6 @@ sap.ui.define([
 					press: jQuery.proxy(this._handleCancelPress, this)
 				}),
 				content: [
-					//ToDo: This is inconsistent with the parent locale (if set). Add 'localeID' property to this control which will read its parent 'localeID' property
 					new ValuePickerSliders(this.getId() + "-sliders", {
 						format: sFormat,
 						labelText: sTitle ? sTitle : "",
@@ -265,6 +264,14 @@ sap.ui.define([
 
 			if (oPicker && oPicker.isOpen() && !bIconClicked) {
 				this._closePicker();
+			}
+		},
+
+		onfocusout: function(o) {
+			var p = this._getPicker();
+			//M.prototype.onfocusout.apply(this, arguments);
+			if (p && !p.isOpen() && !this._bPickerOpening) {
+				this.$().removeClass('sapMTPInputActive');
 			}
 		},
 

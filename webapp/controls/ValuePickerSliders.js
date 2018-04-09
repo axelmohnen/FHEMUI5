@@ -119,6 +119,39 @@ sap.ui.define([
 			return sVpValue;
 		},
 
+		setVpValues: function(d) {
+			var test;
+
+			if (test) {
+				test = true;
+			}
+
+			// var c = sap.ui.getCore(), l = c.byId(this.getId() + '-listHours'), L = c.byId(this.getId() + '-listMins'), o = c.byId(this.getId() + '-listSecs'), b = c.byId(this.getId() + '-listFormat'), h, A = null;
+			// d = d || new Date();
+			// h = d.getHours();
+			// if (b) {
+			//     A = h >= 12 ? 'pm' : 'am';
+			//     h = (h > 12) ? h - 12 : h;
+			//     h = (h === 0 ? 12 : h);
+			// }
+			// l && l.setSelectedValue(h.toString());
+			// L && L.setSelectedValue(d.getMinutes().toString());
+			// o && o.setSelectedValue(d.getSeconds().toString());
+			// b && b.setSelectedValue(A);
+		},
+
+		onBeforeOpen: function() {
+			/* Set the timevalues of the picker here to prevent user from seeing it */
+			var oSliders = this._getSliders();
+
+			oSliders.setVpValues(this.getDateValue());
+			oSliders.setVpValues("2020");
+			oSliders.collapseAll();
+
+			/* Mark input as active */
+			this.$().addClass("sapMTPInputActive");
+		},
+
 		renderer: TimePickerSlidersRenderer
 
 	});

@@ -19,34 +19,42 @@
 							<items>
 								<ColumnListItem counter="0" id="ColListItemShutters" vAlign="Top">
 									<cells>
-										<form:SimpleForm id="FormShutters" maxContainerCols="2" editable="true" minWidth="1024" layout="ResponsiveGridLayout" labelSpanL="3"
-											labelSpanM="3" emptySpanL="1" emptySpanM="1" columnsL="1" columnsM="1">
-											<form:content>
-												<Label id="LabelShuttersButtons" text="{Shutters>ShutterDescription}"/>
-												<SegmentedButton id="ButtonShutters" select="onShutterSelected" app:DeviceID="{Shutters>ShutterID}" width="100%">
-													<items>
-														<SegmentedButtonItem text="" icon="sap-icon://collapse-group" key="on"/>
-														<SegmentedButtonItem text="" icon="sap-icon://expand-group" key="off"/>
-														<SegmentedButtonItem text="" icon="sap-icon://stop" key="stop"/>
-														<SegmentedButtonItem text="" icon="sap-icon://cloud" key="schatten"/>
-													</items>
-												</SegmentedButton>
-												<Label id="LabelShuttersLevels" text=""/>
-												<microchart:BulletMicroChart id="ChartShuttersLevels" size="S" scale="%" showValueMarker="false" minValue="0" maxValue="100"
-													showTargetValue="false" showActualValue="true">
-													<microchart:actual>
-														<microchart:BulletMicroChartData value="{Shutters>ShutterLevel}" color="Good"/>
-													</microchart:actual>
-													<microchart:thresholds>
-														<microchart:BulletMicroChartData value="0"/>
-														<microchart:BulletMicroChartData value="25"/>
-														<microchart:BulletMicroChartData value="50"/>
-														<microchart:BulletMicroChartData value="75"/>
-														<microchart:BulletMicroChartData value="100"/>
-													</microchart:thresholds>
-												</microchart:BulletMicroChart>
-											</form:content>
-										</form:SimpleForm>
+										<l:VerticalLayout id="VLayoutShutters" width="100%">
+											<l:BlockLayout id="BlockLayoutShutters">
+												<l:BlockLayoutRow>
+													<l:BlockLayoutCell width="25%">
+														<Label id="LabelShutters" text="{Shutters>ShutterDescription}"/>
+													</l:BlockLayoutCell>
+													<l:BlockLayoutCell width="75%">
+														<microchart:BulletMicroChart id="ChartShuttersLevels" size="S" scale="%" showValueMarker="false" minValue="0" maxValue="100"
+															showTargetValue="false" showActualValue="true" width="100%">
+															<microchart:actual>
+																<microchart:BulletMicroChartData value="{Shutters>ShutterLevel}" color="Good"/>
+															</microchart:actual>
+															<microchart:thresholds>
+																<microchart:BulletMicroChartData value="0"/>
+																<microchart:BulletMicroChartData value="25"/>
+																<microchart:BulletMicroChartData value="50"/>
+																<microchart:BulletMicroChartData value="75"/>
+																<microchart:BulletMicroChartData value="100"/>
+															</microchart:thresholds>
+														</microchart:BulletMicroChart>
+													</l:BlockLayoutCell>
+												</l:BlockLayoutRow>
+												<l:BlockLayoutRow>
+													<l:BlockLayoutCell>
+														<Button id="ButtonShuttersOn" icon="sap-icon://collapse-group" enabled="true" press="onShutterSelected" app:Action="on"
+															app:DeviceID="{Shutters>ShutterID}" width="25%"/>
+														<Button id="ButtonShuttersOff" icon="sap-icon://expand-group" enabled="true" press="onShutterSelected" app:Action="off"
+															app:DeviceID="{Shutters>ShutterID}" width="25%"/>
+														<Button id="ButtonShuttersStop" icon="sap-icon://stop" enabled="true" press="onShutterSelected" app:Action="stop"
+															app:DeviceID="{Shutters>ShutterID}" width="25%"/>
+														<Button id="ButtonShuttersShading" icon="sap-icon://cloud" enabled="true" press="onShutterSelected" app:Action="schatten"
+															app:DeviceID="{Shutters>ShutterID}" width="25%"/>
+													</l:BlockLayoutCell>
+												</l:BlockLayoutRow>
+											</l:BlockLayout>
+										</l:VerticalLayout>
 									</cells>
 								</ColumnListItem>
 							</items>
@@ -85,33 +93,40 @@
 							<items>
 								<ColumnListItem counter="0" id="ColListItemSunblinds" vAlign="Top">
 									<cells>
-										<form:SimpleForm id="FormSunblinds" maxContainerCols="2" editable="true" minWidth="1024" layout="ResponsiveGridLayout" labelSpanL="3"
-											labelSpanM="3" emptySpanL="1" emptySpanM="1" columnsL="1" columnsM="1">
-											<form:content>
-												<Label id="LabelSunblindsButtons" text="{Sunblinds>SunblindDescription}"/>
-												<SegmentedButton id="ButtonSunblinds" select="onSunblindsSelected" app:DeviceID="{Sunblinds>SunblindID}">
-													<items>
-														<SegmentedButtonItem text="Auf" icon="sap-icon://collapse-group" key="on"/>
-														<SegmentedButtonItem text="Zu" icon="sap-icon://expand-group" key="off"/>
-														<SegmentedButtonItem text="Stop" key="stop"/>
-													</items>
-												</SegmentedButton>
-												<Label id="LabelSunblindsLevels" text=""/>
-												<microchart:BulletMicroChart id="ChartSunblindsLevels" size="S" scale="%" showValueMarker="false" minValue="0" maxValue="100"
-													showTargetValue="false" showActualValue="true">
-													<microchart:actual>
-														<microchart:BulletMicroChartData value="{Sunblinds>SunblindLevel}" color="Good"/>
-													</microchart:actual>
-													<microchart:thresholds>
-														<microchart:BulletMicroChartData value="0"/>
-														<microchart:BulletMicroChartData value="25"/>
-														<microchart:BulletMicroChartData value="50"/>
-														<microchart:BulletMicroChartData value="75"/>
-														<microchart:BulletMicroChartData value="100"/>
-													</microchart:thresholds>
-												</microchart:BulletMicroChart>
-											</form:content>
-										</form:SimpleForm>
+										<l:VerticalLayout id="VLayoutSunblinds" width="100%">
+											<l:BlockLayout id="BlockLayoutSunblinds">
+												<l:BlockLayoutRow>
+													<l:BlockLayoutCell width="25%">
+														<Label id="LabelSunblinds" text="{Sunblinds>SunblindDescription}"/>
+													</l:BlockLayoutCell>
+													<l:BlockLayoutCell width="75%">
+														<microchart:BulletMicroChart id="ChartSunblindsLevels" size="S" scale="%" showValueMarker="false" minValue="0" maxValue="100"
+															showTargetValue="false" showActualValue="true" width="100%">
+															<microchart:actual>
+																<microchart:BulletMicroChartData value="{Sunblinds>SunblindLevel}" color="Good"/>
+															</microchart:actual>
+															<microchart:thresholds>
+																<microchart:BulletMicroChartData value="0"/>
+																<microchart:BulletMicroChartData value="25"/>
+																<microchart:BulletMicroChartData value="50"/>
+																<microchart:BulletMicroChartData value="75"/>
+																<microchart:BulletMicroChartData value="100"/>
+															</microchart:thresholds>
+														</microchart:BulletMicroChart>
+													</l:BlockLayoutCell>
+												</l:BlockLayoutRow>
+												<l:BlockLayoutRow>
+													<l:BlockLayoutCell>
+														<Button id="ButtonSunblindsOn" icon="sap-icon://collapse-group" enabled="true" press="onSunblindsSelected" app:Action="on"
+															app:DeviceID="{Sunblinds>SunblindID}" width="33%"/>
+														<Button id="ButtonSunblindsOff" icon="sap-icon://expand-group" enabled="true" press="onSunblindsSelected" app:Action="off"
+															app:DeviceID="{Sunblinds>SunblindID}" width="33%"/>
+														<Button id="ButtonSunblindsStop" icon="sap-icon://stop" enabled="true" press="onSunblindsSelected" app:Action="stop"
+															app:DeviceID="{Sunblinds>SunblindID}" width="33%"/>
+													</l:BlockLayoutCell>
+												</l:BlockLayoutRow>
+											</l:BlockLayout>
+										</l:VerticalLayout>
 									</cells>
 								</ColumnListItem>
 							</items>
@@ -137,7 +152,7 @@
 														<microchart:HarveyBallMicroChart size="S" total="30" totalScale="°C" showTotal="false" showFractions="true" showfractionScale="true"
 															colorPalette="{RadThermos>RadThermoColorPalette}">
 															<microchart:items>
-																<microchart:HarveyBallMicroChartItem fraction="{RadThermos>RadThermoReqTemp}" fractionScale="°C"/>
+																<microchart:HarveyBallMicroChartItem fraction="{RadThermos>RadThermoFraction}" fractionScale="°C"/>
 															</microchart:items>
 														</microchart:HarveyBallMicroChart>
 													</l:BlockLayoutCell>
@@ -166,7 +181,8 @@
 			</IconTabBar>
 		</semantic:content>
 		<semantic:customFooterContent>
-			<ToggleButton id="ButtonAutoRefresh" text="Auto Refresh" enabled="true" pressed="false" press="onPressAutoRefresh"/>
+			<ToggleButton id="ButtonAutoRefresh" text="Auto Refresh" enabled="true" pressed="false" press="onPressAutoRefresh"
+				icon="sap-icon://synchronize"/>
 		</semantic:customFooterContent>
 	</semantic:DetailPage>
 </mvc:View>
