@@ -20,7 +20,9 @@ sap.ui.define([
 				
 				var oThis = oController;
 				var oModel = oThis.getModel("FhemService");
-				var sPrefix = "?cmd=jsonlist2%20[DeviceID]&XHR=1";
+				//Get config parameters from manifest
+				var oConfig = this.getOwnerComponent().getManifestEntry("/sap.ui5/config");
+				var sPrefix = "?cmd=jsonlist2%20[DeviceID]&XHR=1&fwcsrf=" + oConfig.csrfToken;
 				var sPlaceholder = "[DeviceID]";
 				var sFhemcmd = oModel.sServiceUrl + sPrefix;
 				sFhemcmd = sFhemcmd.replace(sPlaceholder, sDeviceID);
