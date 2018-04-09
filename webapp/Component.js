@@ -45,7 +45,8 @@ sap.ui.define([
 				// Get complete FHEM Service URL
 				var sServer = window.location.origin;
 				var oFhemService = this.getModel("FhemService");
-				oFhemService.sServiceUrl = sServer + oFhemService.sServiceUrl;                         
+				oFhemService.sServiceUrl = sServer + oFhemService.sServiceUrl;  
+				
 			},
 
 			/**

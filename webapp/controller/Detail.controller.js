@@ -645,7 +645,7 @@ sap.ui.define([
 				return;
 			}
 
-			//Get data from Fhem via JSON List
+			// Get data from Fhem via JSON List
 			if (oDeviceSet instanceof Array) {
 				oDeviceSet.forEach(function(oValue, i) {
 					oThis.refreshReadings(sGroupID, oValue.DeviceID, oValue.ReadingSet.results);
@@ -717,9 +717,12 @@ sap.ui.define([
 			}
 
 			var oModel = this.getModel("FhemService");
+			//Get config parameters from manifest
+			var oConfig = this.getOwnerComponent().getManifestEntry("/sap.ui5/config");
 			var sPrefix1 = "?cmd=";
 			var sPrefix2 = "set%20[DeviceID]%20[Cmd]";
 			var sPrefix3 = "&XHR=1";
+			var sPrefix4 = "&fwcsrf=" + oConfig.csrfToken;
 			var sPlaceholder1 = "[DeviceID]";
 			var sPlaceholder2 = "[Cmd]";
 			var oXmlHttp = new XMLHttpRequest();
@@ -729,7 +732,7 @@ sap.ui.define([
 			sPrefix2 = sPrefix2.replace(sPlaceholder2, sCmd);
 
 			// Build FHEM Command
-			var sFhemcmd = oModel.sServiceUrl + sPrefix1 + sPrefix2 + sPrefix3;
+			var sFhemcmd = oModel.sServiceUrl + sPrefix1 + sPrefix2 + sPrefix3 + sPrefix4;
 
 			// Catch HTTP responce status
 			oXmlHttp.onreadystatechange = function() {
