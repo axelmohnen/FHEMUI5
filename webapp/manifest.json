@@ -98,6 +98,9 @@
 				"settings": {}
 			}
 		},
+		"config": {
+			"csrfToken": "XYZ"
+		},
 		"routing": {
 			"config": {
 				"routerClass": "sap.m.routing.Router",

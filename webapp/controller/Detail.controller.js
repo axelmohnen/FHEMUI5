@@ -671,26 +671,6 @@ sap.ui.define([
 			// For aync Mode
 			this.readFhemData(sGroupID, sDeviceID, oReadingSet);
 
-			// TODO: Remove Coding
-			// // For sync mode 
-			// var oModelFhemData = this.readFhemData(sDeviceID);
-
-			// if (!oModelFhemData) {
-			// 	return;
-			// }
-			// if (oReadingSet instanceof Array) {
-			// 	oReadingSet.forEach(function(oValue, i) {
-			// 		// Get ReadingsValue from FHEM Model
-			// 		var sReadingValue = oModelFhemData.getProperty("/Results/0/Readings/" + oValue.ReadingID + "/Value");
-			// 		// Keep old reading value
-			// 		oValue.ReadingValueOld = oValue.ReadingValue;
-			// 		// Set new reading value
-			// 		oValue.ReadingValue = sReadingValue;
-			// 		if (!oValue.ReadingValue) {
-			// 			oValue.ReadingValue = "0";
-			// 		}
-			// 	});
-			// }
 		},
 
 		readFhemData: function(sGroupID, sDeviceID, oReadingSet) {
@@ -704,17 +684,14 @@ sap.ui.define([
 			}
 			var oThis = this;
 			var oModel = this.getModel("FhemService");
-			var sPrefix = "?cmd=jsonlist2%20[DeviceID]&XHR=1";
+			//Get config parameters from manifest
+			var oConfig = this.getOwnerComponent().getManifestEntry("/sap.ui5/config");
+			var sPrefix = "?cmd=jsonlist2%20[DeviceID]&XHR=1&fwcsrf=" + oConfig.csrfToken;
 			var sPlaceholder = "[DeviceID]";
 			var sFhemcmd = oModel.sServiceUrl + sPrefix;
 			sFhemcmd = sFhemcmd.replace(sPlaceholder, sDeviceID);
 
 			var oModelFhemData = new sap.ui.model.json.JSONModel();
-
-			// TODO: Remove Coding
-			// For synchronious mode
-			// oModelFhemData.loadData(sFhemcmd, undefined, false);
-			// return oModelFhemData;
 
 			// Read FHEM data asynchronous
 			oModelFhemData.loadData(sFhemcmd, undefined, true);
@@ -743,10 +720,6 @@ sap.ui.define([
 				}
 				// Build Models
 				oThis.buildModels(sGroupID);
-
-				// TODO: Remove Coding
-				// Update Binding
-				//oThis.updateBinding();
 
 			});
 
@@ -797,9 +770,12 @@ sap.ui.define([
 			}
 
 			var oModel = this.getModel("FhemService");
+			//Get config parameters from manifest
+			var oConfig = this.getOwnerComponent().getManifestEntry("/sap.ui5/config");
 			var sPrefix1 = "?cmd=";
 			var sPrefix2 = "set%20[DeviceID]%20[Cmd]";
 			var sPrefix3 = "&XHR=1";
+			var sPrefix4 = "&fwcsrf=" + oConfig.csrfToken;
 			var sPlaceholder1 = "[DeviceID]";
 			var sPlaceholder2 = "[Cmd]";
 			var oXmlHttp = new XMLHttpRequest();
@@ -809,7 +785,7 @@ sap.ui.define([
 			sPrefix2 = sPrefix2.replace(sPlaceholder2, sCmd);
 
 			// Build FHEM Command
-			var sFhemcmd = oModel.sServiceUrl + sPrefix1 + sPrefix2 + sPrefix3;
+			var sFhemcmd = oModel.sServiceUrl + sPrefix1 + sPrefix2 + sPrefix3 + sPrefix4;
 
 			// Catch HTTP responce status
 			oXmlHttp.onreadystatechange = function() {
