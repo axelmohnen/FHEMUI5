@@ -90,8 +90,10 @@ sap.ui.define([
 				}
 
 				var oModel = oController.getOwnerComponent().getModel("FhemService");
+				//Get config parameters from manifest
+				var oConfig = oController.getOwnerComponent().getManifestEntry("/sap.ui5/config");
 				var sPrefix =
-					'?cmd=get%20[Dblog]%20-%20webchart%[TimestampFrom]%20[TimestampTo]%20[Device]%20getTableData%20""%20[Reading]%20""%20""%200%201000&XHR=1';
+					'?cmd=get%20[Dblog]%20-%20webchart%[TimestampFrom]%20[TimestampTo]%20[Device]%20getTableData%20""%20[Reading]%20""%20""%200%201000&XHR=1&fwcsrf=' + oConfig.csrfToken;
 				var sPlaceholderDblog = "[Dblog]";
 				var sPlaceholderTimestampFrom = "[TimestampFrom]";
 				var sPlaceholderTimestampTo = "[TimestampTo]";

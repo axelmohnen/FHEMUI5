@@ -66,10 +66,10 @@ sap.ui.define([
 			this.getModel("ViewModel").setProperty("/ViewTitle", this.sTileHeader + this.sTileSubHeader);
 
 			// Get Chart data - Consumption per month
-			this.oConsMonthData = this.getConsMonthData(this.sReadingID);
+			this.oConsMonthData = this.getConsMonthData(this.sDeviceID);
 
 			// Get Chart data - Current consumption
-			this.oCurrConsData = this.getCurrConsData(this.sReadingID);
+			this.oCurrConsData = this.getCurrConsData(this.sDeviceID);
 
 			// Build Column Chart for monthly consumption
 			this.buildChartConsMonth();
@@ -475,10 +475,10 @@ sap.ui.define([
 			return oDataSet;
 		},
 
-		getConsMonthData: function(sReadingID) {
+		getConsMonthData: function(sDeviceID) {
 			var iYearPast = this.iYearCurrent - this.iTimeFrame;
-			var sDblog = sReadingID + ".dblog1";
-			var sDevice = sReadingID + ".dum1";
+			var sDblog = sDeviceID + ".dblog1";
+			var sDevice = sDeviceID + ".dum1";
 			var sTimestampFrom = iYearPast + "-01-01_00:00:00";
 			var sTimestampTo = this.iYearCurrent + "-12-31_00:00:00";
 			var sReading = "Monatsverbrauch";
@@ -749,10 +749,10 @@ sap.ui.define([
 
 		},
 
-		getCurrConsData: function(sReadingID) {
+		getCurrConsData: function(sDeviceID) {
 			var iYearPast = this.iYearCurrent - this.iTimeFrame;
-			var sDblog = sReadingID + ".dblog1";
-			var sDevice = sReadingID;
+			var sDblog = sDeviceID + ".dblog1";
+			var sDevice = sDeviceID;
 			var sTimestampFrom = iYearPast + "-01-01_00:00:00";
 			var sTimestampTo = this.iYearCurrent + "-12-31_00:00:00";
 			var sReading = "Momentanverbrauch";
