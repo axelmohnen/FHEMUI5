@@ -1,0 +1,35 @@
+{
+    "application": {
+        "id": "",
+        "title": "fhemui5.FHEMUI5",
+        "description": "FHEM Smart Home",
+        "type": "SAP_UI5_Component",
+        "componentUrl": "/",
+        "appUrl": "#FHEMUI5-Display",
+        "navigationComponentName": "fhemui5",
+        "intentSemanticObject": "FHEMUI5",
+        "intentAction": "Display",
+        "html5ApplicationName": "fhemui5",
+        "HCPParentApplicationName": ""
+    },
+    "assignment": {
+        "groups": [
+            "029154f6-324e-4b8f-86d9-56e9f39facb5-1459423338936"
+        ],
+        "contentPackages": [
+            "d346441d-af1e-4975-95d9-ba3858a8303c"
+        ],
+        "categories": []
+    },
+    "tile": {
+        "type": "StaticTile",
+        "title": "FHEMUI5",
+        "subtitle": "FHEM Smart Home",
+        "searchKeywords": "FHEMUI5,FHEM Smart Home",
+        "displayIconUrl": "sap-icon://approvals",
+        "displayInfoText": "",
+        "size": "1x1",
+        "serviceURL": "",
+        "refreshInterval": ""
+    }
+}

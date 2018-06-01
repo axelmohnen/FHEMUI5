@@ -751,11 +751,11 @@ sap.ui.define([
 
 		getCurrConsData: function(sDeviceID) {
 			var iYearPast = this.iYearCurrent - this.iTimeFrame;
-			var sDblog = sDeviceID + ".dblog1";
+			var sDblog = sDeviceID + ".dblog";
 			var sDevice = sDeviceID;
 			var sTimestampFrom = iYearPast + "-01-01_00:00:00";
 			var sTimestampTo = this.iYearCurrent + "-12-31_00:00:00";
-			var sReading = "Momentanverbrauch";
+			var sReading = "Momentanleistung";
 
 			//Read DBLOG from FHEM
 			var oFhemDblog = FhemUtils.readDblogData(this, sDblog, sDevice, sTimestampFrom, sTimestampTo, sReading);
