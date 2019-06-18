@@ -11,3 +11,9 @@ fioriHtmlRunner.html
 mock_preview_sapui5.html
 .*/mock_preview_sapui5.html
 /dist/
+AppVariant_index.html
+AppVariantPreviewPayload.zip
+mergedManifestDescriptor.json
+APIExternalProducer.js
+.*/APIExternalProducer.js
+/mta_archives/
